@@ -1,0 +1,22 @@
+[project]
+name = "coref_automl"
+version = "0.1.0"
+description = "Korean pronoun-to-noun coreference with AutoML, real-data only, CLI dashboard"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "transformers>=4.44",
+  "datasets>=3.0",
+  "accelerate>=0.34",
+  "optuna>=3.6",
+  "rich>=13.7",
+  "kiwipiepy>=0.20",
+  "sentencepiece>=0.2",
+  "huggingface_hub>=0.24",
+  "protobuf<5",
+  # torch는 CUDA 환경별로 개별 설치 권장(uv로 별도 설치 가능)
+]
+
+[tool.uv]
+# uv 프로젝트 설정이 이미 있다면 이 섹션은 생략 가능
+
