@@ -1,0 +1,1762 @@
+/home/work/hongseongmin/coref/automl2_spanMlm/.venv/lib/python3.12/site-packages/torch/__init__.py:1617: UserWarning: Please use the new API settings to control TF32 behavior, such as torch.backends.cudnn.conv.fp32_precision = 'tf32' or torch.backends.cuda.matmul.fp32_precision = 'ieee'. Old settings, e.g, torch.backends.cuda.matmul.allow_tf32 = True, torch.backends.cudnn.allow_tf32 = True, allowTF32CuDNN() and allowTF32CuBLAS() will be deprecated after Pytorch 2.9. Please see https://pytorch.org/docs/main/notes/cuda.html#tensorfloat-32-tf32-on-ampere-and-later-devices (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:80.)
+  _C._set_float32_matmul_precision(precision)
+
+== 공정 비교 (둘 다 max_tokens=512) ==
+{
+  "base@512": {
+    "acc": 0.2857142857142857,
+    "f1": 0.2857142857142857,
+    "n": 21,
+    "details": [
+      {
+        "pronoun": "그는",
+        "gold": "이순신",
+        "pred": "봤다",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "세종대왕",
+        "pred": "세종대왕",
+        "ok": true
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "신사임당",
+        "pred": "신사임당",
+        "ok": true
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "노트북",
+        "pred": "샀다",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "영희",
+        "pred": "영희",
+        "ok": true
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "시연",
+          "신제품",
+          "신제품시연",
+          "시연"
+        ],
+        "pred": "발표",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "박현우",
+          "현우"
+        ],
+        "pred": "민수",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "문서",
+          "최종본"
+        ],
+        "pred": "했다",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "김과장",
+          "김"
+        ],
+        "pred": "서명",
+        "ok": false
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "팀원들",
+          "팀원"
+        ],
+        "pred": "지영",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "철수",
+        "pred": "영희",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "민수",
+        "pred": "카카오",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "시제품",
+        "pred": "장비",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "총장",
+        "pred": "총장",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "이창용",
+        "pred": "한국은행",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "지수",
+        "pred": "코드",
+        "ok": false
+      },
+      {
+        "pronoun": "그가",
+        "gold": "박세준",
+        "pred": "연구원",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "수정본",
+          "초안",
+          "보고서"
+        ],
+        "pred": "보고서",
+        "ok": true
+      },
+      {
+        "pronoun": "그의",
+        "gold": "영준",
+        "pred": "영준",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "영준",
+        "pred": "제안",
+        "ok": false
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "수진",
+          "하람",
+          "수진과하람",
+          "팀"
+        ],
+        "pred": "밤새",
+        "ok": false
+      }
+    ],
+    "name": "base@512"
+  },
+  "ft@512": {
+    "acc": 0.6666666666666666,
+    "f1": 0.6666666666666666,
+    "n": 21,
+    "details": [
+      {
+        "pronoun": "그는",
+        "gold": "이순신",
+        "pred": "이순신",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "세종대왕",
+        "pred": "세종대왕",
+        "ok": true
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "신사임당",
+        "pred": "신사임당",
+        "ok": true
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "노트북",
+        "pred": "노트북",
+        "ok": true
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "영희",
+        "pred": "영희",
+        "ok": true
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "시연",
+          "신제품",
+          "신제품시연",
+          "시연"
+        ],
+        "pred": "발표",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "박현우",
+          "현우"
+        ],
+        "pred": "민수",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "문서",
+          "최종본"
+        ],
+        "pred": "문서",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "김과장",
+          "김"
+        ],
+        "pred": "했다",
+        "ok": false
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "팀원들",
+          "팀원"
+        ],
+        "pred": "팀원들",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "철수",
+        "pred": "영희",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "민수",
+        "pred": "카카오",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "시제품",
+        "pred": "시제품",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "총장",
+        "pred": "총장",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "이창용",
+        "pred": "한국은행",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "지수",
+        "pred": "지수",
+        "ok": true
+      },
+      {
+        "pronoun": "그가",
+        "gold": "박세준",
+        "pred": "연구원",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "수정본",
+          "초안",
+          "보고서"
+        ],
+        "pred": "수정본",
+        "ok": true
+      },
+      {
+        "pronoun": "그의",
+        "gold": "영준",
+        "pred": "영준",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "영준",
+        "pred": "영준",
+        "ok": true
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "수진",
+          "하람",
+          "수진과하람",
+          "팀"
+        ],
+        "pred": "하람",
+        "ok": true
+      }
+    ],
+    "name": "ft@512"
+  }
+}
+
+== 같은 모델 내 512 vs 확장 길이 비교 (롱컨텍스트 효과) ==
+{
+  "ft@512": {
+    "acc": 0.6666666666666666,
+    "f1": 0.6666666666666666,
+    "n": 21,
+    "details": [
+      {
+        "pronoun": "그는",
+        "gold": "이순신",
+        "pred": "이순신",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "세종대왕",
+        "pred": "세종대왕",
+        "ok": true
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "신사임당",
+        "pred": "신사임당",
+        "ok": true
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "노트북",
+        "pred": "노트북",
+        "ok": true
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "영희",
+        "pred": "영희",
+        "ok": true
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "시연",
+          "신제품",
+          "신제품시연",
+          "시연"
+        ],
+        "pred": "발표",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "박현우",
+          "현우"
+        ],
+        "pred": "민수",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "문서",
+          "최종본"
+        ],
+        "pred": "문서",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "김과장",
+          "김"
+        ],
+        "pred": "했다",
+        "ok": false
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "팀원들",
+          "팀원"
+        ],
+        "pred": "팀원들",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "철수",
+        "pred": "영희",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "민수",
+        "pred": "카카오",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "시제품",
+        "pred": "시제품",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "총장",
+        "pred": "총장",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "이창용",
+        "pred": "한국은행",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "지수",
+        "pred": "지수",
+        "ok": true
+      },
+      {
+        "pronoun": "그가",
+        "gold": "박세준",
+        "pred": "연구원",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "수정본",
+          "초안",
+          "보고서"
+        ],
+        "pred": "수정본",
+        "ok": true
+      },
+      {
+        "pronoun": "그의",
+        "gold": "영준",
+        "pred": "영준",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "영준",
+        "pred": "영준",
+        "ok": true
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "수진",
+          "하람",
+          "수진과하람",
+          "팀"
+        ],
+        "pred": "하람",
+        "ok": true
+      }
+    ],
+    "name": "ft@512"
+  },
+  "ft@1024": {
+    "acc": 0.6666666666666666,
+    "f1": 0.6666666666666666,
+    "n": 21,
+    "details": [
+      {
+        "pronoun": "그는",
+        "gold": "이순신",
+        "pred": "이순신",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "세종대왕",
+        "pred": "세종대왕",
+        "ok": true
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "신사임당",
+        "pred": "신사임당",
+        "ok": true
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "노트북",
+        "pred": "노트북",
+        "ok": true
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "영희",
+        "pred": "영희",
+        "ok": true
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "시연",
+          "신제품",
+          "신제품시연",
+          "시연"
+        ],
+        "pred": "발표",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "박현우",
+          "현우"
+        ],
+        "pred": "민수",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "문서",
+          "최종본"
+        ],
+        "pred": "문서",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "김과장",
+          "김"
+        ],
+        "pred": "했다",
+        "ok": false
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "팀원들",
+          "팀원"
+        ],
+        "pred": "팀원들",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "철수",
+        "pred": "영희",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "민수",
+        "pred": "카카오",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "시제품",
+        "pred": "시제품",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "총장",
+        "pred": "총장",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "이창용",
+        "pred": "한국은행",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "지수",
+        "pred": "지수",
+        "ok": true
+      },
+      {
+        "pronoun": "그가",
+        "gold": "박세준",
+        "pred": "연구원",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "수정본",
+          "초안",
+          "보고서"
+        ],
+        "pred": "수정본",
+        "ok": true
+      },
+      {
+        "pronoun": "그의",
+        "gold": "영준",
+        "pred": "영준",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "영준",
+        "pred": "영준",
+        "ok": true
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "수진",
+          "하람",
+          "수진과하람",
+          "팀"
+        ],
+        "pred": "하람",
+        "ok": true
+      }
+    ],
+    "name": "ft@1024"
+  }
+}
+{
+  "ft@512": {
+    "acc": 0.6666666666666666,
+    "f1": 0.6666666666666666,
+    "n": 21,
+    "details": [
+      {
+        "pronoun": "그는",
+        "gold": "이순신",
+        "pred": "이순신",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "세종대왕",
+        "pred": "세종대왕",
+        "ok": true
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "신사임당",
+        "pred": "신사임당",
+        "ok": true
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "노트북",
+        "pred": "노트북",
+        "ok": true
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "영희",
+        "pred": "영희",
+        "ok": true
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "시연",
+          "신제품",
+          "신제품시연",
+          "시연"
+        ],
+        "pred": "발표",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "박현우",
+          "현우"
+        ],
+        "pred": "민수",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "문서",
+          "최종본"
+        ],
+        "pred": "문서",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "김과장",
+          "김"
+        ],
+        "pred": "했다",
+        "ok": false
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "팀원들",
+          "팀원"
+        ],
+        "pred": "팀원들",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "철수",
+        "pred": "영희",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "민수",
+        "pred": "카카오",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "시제품",
+        "pred": "시제품",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "총장",
+        "pred": "총장",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "이창용",
+        "pred": "한국은행",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "지수",
+        "pred": "지수",
+        "ok": true
+      },
+      {
+        "pronoun": "그가",
+        "gold": "박세준",
+        "pred": "연구원",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "수정본",
+          "초안",
+          "보고서"
+        ],
+        "pred": "수정본",
+        "ok": true
+      },
+      {
+        "pronoun": "그의",
+        "gold": "영준",
+        "pred": "영준",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "영준",
+        "pred": "영준",
+        "ok": true
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "수진",
+          "하람",
+          "수진과하람",
+          "팀"
+        ],
+        "pred": "하람",
+        "ok": true
+      }
+    ],
+    "name": "ft@512"
+  },
+  "ft@2048": {
+    "acc": 0.6666666666666666,
+    "f1": 0.6666666666666666,
+    "n": 21,
+    "details": [
+      {
+        "pronoun": "그는",
+        "gold": "이순신",
+        "pred": "이순신",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "세종대왕",
+        "pred": "세종대왕",
+        "ok": true
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "신사임당",
+        "pred": "신사임당",
+        "ok": true
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "노트북",
+        "pred": "노트북",
+        "ok": true
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "영희",
+        "pred": "영희",
+        "ok": true
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "시연",
+          "신제품",
+          "신제품시연",
+          "시연"
+        ],
+        "pred": "발표",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "박현우",
+          "현우"
+        ],
+        "pred": "민수",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "문서",
+          "최종본"
+        ],
+        "pred": "문서",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "김과장",
+          "김"
+        ],
+        "pred": "했다",
+        "ok": false
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "팀원들",
+          "팀원"
+        ],
+        "pred": "팀원들",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "철수",
+        "pred": "영희",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "민수",
+        "pred": "카카오",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "시제품",
+        "pred": "시제품",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "총장",
+        "pred": "총장",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "이창용",
+        "pred": "한국은행",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "지수",
+        "pred": "지수",
+        "ok": true
+      },
+      {
+        "pronoun": "그가",
+        "gold": "박세준",
+        "pred": "연구원",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "수정본",
+          "초안",
+          "보고서"
+        ],
+        "pred": "수정본",
+        "ok": true
+      },
+      {
+        "pronoun": "그의",
+        "gold": "영준",
+        "pred": "영준",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "영준",
+        "pred": "영준",
+        "ok": true
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "수진",
+          "하람",
+          "수진과하람",
+          "팀"
+        ],
+        "pred": "하람",
+        "ok": true
+      }
+    ],
+    "name": "ft@2048"
+  }
+}
+
+== 롱컨텍스트 합성 세트 (긴 갭) ==
+{
+  "600": {
+    "acc": 0.42857142857142855,
+    "f1": 0.42857142857142855,
+    "n": 35,
+    "details": [
+      {
+        "pronoun": "그는",
+        "gold": "이순신",
+        "pred": "이순신",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "세종대왕",
+        "pred": "훈민정음",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "신사임당",
+        "pred": "뛰어난",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "노트북",
+        "pred": "새로운",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "영희",
+        "pred": "영희",
+        "ok": true
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "시연",
+          "신제품",
+          "신제품시연",
+          "시연"
+        ],
+        "pred": "발표",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "박현우",
+          "현우"
+        ],
+        "pred": "철수",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "문서",
+          "최종본"
+        ],
+        "pred": "문서",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "김과장",
+          "김"
+        ],
+        "pred": "문서",
+        "ok": false
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "팀원들",
+          "팀원"
+        ],
+        "pred": "수진",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "철수",
+        "pred": "철수",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "민수",
+        "pred": "공동",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "시제품",
+        "pred": "동시",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "총장",
+        "pred": "총장",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "이창용",
+        "pred": "한국은행",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "지수",
+        "pred": "지수",
+        "ok": true
+      },
+      {
+        "pronoun": "그가",
+        "gold": "박세준",
+        "pred": "마친",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "수정본",
+          "초안",
+          "보고서"
+        ],
+        "pred": "보고서",
+        "ok": true
+      },
+      {
+        "pronoun": "그의",
+        "gold": "영준",
+        "pred": "영준",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "영준",
+        "pred": "영준",
+        "ok": true
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "수진",
+          "하람",
+          "수진과하람",
+          "팀"
+        ],
+        "pred": "수진",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "이순신",
+        "pred": "이순신",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "세종대왕",
+        "pred": "훈민정음",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "신사임당",
+        "pred": "뛰어난",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "노트북",
+        "pred": "새로운",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "영희",
+        "pred": "영희",
+        "ok": true
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "시연",
+          "신제품",
+          "신제품시연",
+          "시연"
+        ],
+        "pred": "발표",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "박현우",
+          "현우"
+        ],
+        "pred": "철수",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "문서",
+          "최종본"
+        ],
+        "pred": "문서",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "김과장",
+          "김"
+        ],
+        "pred": "문서",
+        "ok": false
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "팀원들",
+          "팀원"
+        ],
+        "pred": "수진",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "철수",
+        "pred": "철수",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "민수",
+        "pred": "공동",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "시제품",
+        "pred": "동시",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "총장",
+        "pred": "총장",
+        "ok": true
+      }
+    ],
+    "gap": 600,
+    "name": "ft@2048_gap600"
+  },
+  "1200": {
+    "acc": 0.14285714285714285,
+    "f1": 0.14285714285714285,
+    "n": 35,
+    "details": [
+      {
+        "pronoun": "그는",
+        "gold": "이순신",
+        "pred": "어제",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "세종대왕",
+        "pred": "훈민정음",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "신사임당",
+        "pred": "뛰어난",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "노트북",
+        "pred": "나",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "영희",
+        "pred": "부스",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "시연",
+          "신제품",
+          "신제품시연",
+          "시연"
+        ],
+        "pred": "발표",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "박현우",
+          "현우"
+        ],
+        "pred": "철수",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "문서",
+          "최종본"
+        ],
+        "pred": "위",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "김과장",
+          "김"
+        ],
+        "pred": "책상",
+        "ok": false
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "팀원들",
+          "팀원"
+        ],
+        "pred": "지영",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "철수",
+        "pred": "철수",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "민수",
+        "pred": "카카오",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "시제품",
+        "pred": "동시",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "총장",
+        "pred": "했다",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "이창용",
+        "pred": "총재",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "지수",
+        "pred": "남긴",
+        "ok": false
+      },
+      {
+        "pronoun": "그가",
+        "gold": "박세준",
+        "pred": "마친",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "수정본",
+          "초안",
+          "보고서"
+        ],
+        "pred": "보고서",
+        "ok": true
+      },
+      {
+        "pronoun": "그의",
+        "gold": "영준",
+        "pred": "영준",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "영준",
+        "pred": "제안",
+        "ok": false
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "수진",
+          "하람",
+          "수진과하람",
+          "팀"
+        ],
+        "pred": "수진",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "이순신",
+        "pred": "어제",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "세종대왕",
+        "pred": "훈민정음",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "신사임당",
+        "pred": "뛰어난",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "노트북",
+        "pred": "나",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "영희",
+        "pred": "부스",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "시연",
+          "신제품",
+          "신제품시연",
+          "시연"
+        ],
+        "pred": "발표",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "박현우",
+          "현우"
+        ],
+        "pred": "철수",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "문서",
+          "최종본"
+        ],
+        "pred": "위",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "김과장",
+          "김"
+        ],
+        "pred": "책상",
+        "ok": false
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "팀원들",
+          "팀원"
+        ],
+        "pred": "지영",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "철수",
+        "pred": "철수",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "민수",
+        "pred": "카카오",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "시제품",
+        "pred": "동시",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "총장",
+        "pred": "했다",
+        "ok": false
+      }
+    ],
+    "gap": 1200,
+    "name": "ft@2048_gap1200"
+  },
+  "1800": {
+    "acc": 0.2,
+    "f1": 0.2,
+    "n": 35,
+    "details": [
+      {
+        "pronoun": "그는",
+        "gold": "이순신",
+        "pred": "어제",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "세종대왕",
+        "pred": "훈민정음",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "신사임당",
+        "pred": "뛰어난",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "노트북",
+        "pred": "나",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "영희",
+        "pred": "부스",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "시연",
+          "신제품",
+          "신제품시연",
+          "시연"
+        ],
+        "pred": "발표",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "박현우",
+          "현우"
+        ],
+        "pred": "민수",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "문서",
+          "최종본"
+        ],
+        "pred": "위",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "김과장",
+          "김"
+        ],
+        "pred": "서명",
+        "ok": false
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "팀원들",
+          "팀원"
+        ],
+        "pred": "지영",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "철수",
+        "pred": "철수",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "민수",
+        "pred": "공동",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "시제품",
+        "pred": "동시",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "총장",
+        "pred": "총장",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "이창용",
+        "pred": "총재",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "지수",
+        "pred": "지수",
+        "ok": true
+      },
+      {
+        "pronoun": "그가",
+        "gold": "박세준",
+        "pred": "마친",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "수정본",
+          "초안",
+          "보고서"
+        ],
+        "pred": "보고서",
+        "ok": true
+      },
+      {
+        "pronoun": "그의",
+        "gold": "영준",
+        "pred": "영준",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "영준",
+        "pred": "제안",
+        "ok": false
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "수진",
+          "하람",
+          "수진과하람",
+          "팀"
+        ],
+        "pred": "디자이너",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "이순신",
+        "pred": "어제",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "세종대왕",
+        "pred": "훈민정음",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "신사임당",
+        "pred": "뛰어난",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "노트북",
+        "pred": "나",
+        "ok": false
+      },
+      {
+        "pronoun": "그녀는",
+        "gold": "영희",
+        "pred": "부스",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "시연",
+          "신제품",
+          "신제품시연",
+          "시연"
+        ],
+        "pred": "발표",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "박현우",
+          "현우"
+        ],
+        "pred": "민수",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": [
+          "문서",
+          "최종본"
+        ],
+        "pred": "위",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": [
+          "김과장",
+          "김"
+        ],
+        "pred": "서명",
+        "ok": false
+      },
+      {
+        "pronoun": "그들은",
+        "gold": [
+          "팀원들",
+          "팀원"
+        ],
+        "pred": "지영",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "철수",
+        "pred": "철수",
+        "ok": true
+      },
+      {
+        "pronoun": "그는",
+        "gold": "민수",
+        "pred": "공동",
+        "ok": false
+      },
+      {
+        "pronoun": "그것은",
+        "gold": "시제품",
+        "pred": "동시",
+        "ok": false
+      },
+      {
+        "pronoun": "그는",
+        "gold": "총장",
+        "pred": "총장",
+        "ok": true
+      }
+    ],
+    "gap": 1800,
+    "name": "ft@2048_gap1800"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "best_params": {
+    "lr": 4.034750353313175e-05,
+    "weight_decay": 0.02189334168922278,
+    "mask_prob": 0.19338568923493019,
+    "mean_span": 3.908731361046382,
+    "start_bs": 256,
+    "grad_accum": 32,
+    "dataloader_workers": 24,
+    "compile_flag": 0,
+    "curriculum": "1024-2048"
+  },
+  "best_score": 0.41041666666666665
+}

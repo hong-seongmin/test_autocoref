@@ -1,0 +1,33 @@
+{
+  "best_score": 0,
+  "trial": 0,
+  "params": {
+    "lr": 2.1345753905356078e-05,
+    "weight_decay": 0.08507132003608056,
+    "mask_prob": 0.24038202497160088,
+    "mean_span": 3.736821166212665,
+    "start_bs": 256,
+    "grad_accum": 32,
+    "dataloader_workers": 24,
+    "compile_flag": 1,
+    "curriculum": "512-2048",
+    "seqs": [
+      512,
+      2048
+    ],
+    "sched": [
+      0.7,
+      0.3
+    ],
+    "total_tokens": 100000000,
+    "seed": 42
+  },
+  "model_dir": "",
+  "metrics": {
+    "short": {
+      "f1": 0,
+      "acc": 0,
+      "n": 0
+    }
+  }
+}

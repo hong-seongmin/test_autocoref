@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Model checkpoints (optional - keep smaller ones)
+*.ckpt
+*.pth
+*.safetensors
+optimizer.pt
+scheduler.pt
+training_args.bin
+
+# Large data files (optional)
+# *.csv
+# *.json
+
+# Dataset data files (too large for git)
+dataset/ecmt/*.conllu
+dataset/koconovel/data/
+dataset/kobooknlp/data/
+automl1/KoCoNovel/data/
+automl1/ecmt_download/
+
+# Cache
+*.cache
+
+# NOTE: Log files are INCLUDED (not ignored)
+# *.log
+# *.txt
