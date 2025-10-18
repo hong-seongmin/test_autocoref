@@ -1,0 +1,229 @@
+{
+  "evaluated_at": "2025-10-10T11:59:28.402085",
+  "total_checkpoints": 10,
+  "total_time_minutes": 138.9094109495481,
+  "lambada_limit": 600,
+  "coref_limit": 1600,
+  "results": [
+    {
+      "checkpoint": "/home/work/hongseongmin/corefer/runs/combined_experiment/checkpoint-1188",
+      "seq_len": 1536,
+      "evaluated_at": "2025-10-10T09:40:34.757369",
+      "lambada_top1": 0.35333333333333333,
+      "lambada_time": 71.13379907608032,
+      "coref_samples": 2400,
+      "coref_f1": 0.03787990016150345,
+      "coref_f1_time": 293.82868671417236,
+      "coref_top5": 0.6441666666666667,
+      "coref_top5_time": 293.2340087890625,
+      "total_time": 706.8908779621124,
+      "score": 0.31440196006460136,
+      "checkpoint_info": {
+        "path": "/home/work/hongseongmin/corefer/runs/combined_experiment/checkpoint-1188",
+        "name": "checkpoint-1188",
+        "seq_len": 1536,
+        "model_type": "deberta-v2",
+        "global_step": 1188,
+        "epoch": 3.0
+      }
+    },
+    {
+      "checkpoint": "/home/work/hongseongmin/corefer/runs/combined_experiment/checkpoint-1230",
+      "seq_len": 2048,
+      "evaluated_at": "2025-10-10T09:52:21.725282",
+      "lambada_top1": 0.35,
+      "lambada_time": 69.57643604278564,
+      "coref_samples": 3200,
+      "coref_f1": 0.03300209997618584,
+      "coref_f1_time": 413.4658958911896,
+      "coref_top5": 0.6840625,
+      "coref_top5_time": 416.40969920158386,
+      "total_time": 962.2613761425018,
+      "score": 0.3234195899904743,
+      "checkpoint_info": {
+        "path": "/home/work/hongseongmin/corefer/runs/combined_experiment/checkpoint-1230",
+        "name": "checkpoint-1230",
+        "seq_len": 2048,
+        "model_type": "deberta-v2",
+        "global_step": 1230,
+        "epoch": 3.0
+      }
+    },
+    {
+      "checkpoint": "/home/work/hongseongmin/corefer/runs/combined_experiment/checkpoint-1584",
+      "seq_len": 1536,
+      "evaluated_at": "2025-10-10T10:08:24.150989",
+      "lambada_top1": 0.365,
+      "lambada_time": 68.60847091674805,
+      "coref_samples": 2400,
+      "coref_f1": 0.03904064837722164,
+      "coref_f1_time": 290.57725644111633,
+      "coref_top5": 0.6608333333333334,
+      "coref_top5_time": 294.92828392982483,
+      "total_time": 696.8378157615662,
+      "score": 0.32336625935088864,
+      "checkpoint_info": {
+        "path": "/home/work/hongseongmin/corefer/runs/combined_experiment/checkpoint-1584",
+        "name": "checkpoint-1584",
+        "seq_len": 1536,
+        "model_type": "deberta-v2",
+        "global_step": 1584,
+        "epoch": 4.0
+      }
+    },
+    {
+      "checkpoint": "/home/work/hongseongmin/corefer/runs/combined_experiment/checkpoint-1640",
+      "seq_len": 2048,
+      "evaluated_at": "2025-10-10T10:20:01.421488",
+      "lambada_top1": 0.36,
+      "lambada_time": 69.95094275474548,
+      "coref_samples": 3200,
+      "coref_f1": 0.03280221683408382,
+      "coref_f1_time": 413.7106177806854,
+      "coref_top5": 0.6809375,
+      "coref_top5_time": 417.78276348114014,
+      "total_time": 963.050900220871,
+      "score": 0.3254021367336335,
+      "checkpoint_info": {
+        "path": "/home/work/hongseongmin/corefer/runs/combined_experiment/checkpoint-1640",
+        "name": "checkpoint-1640",
+        "seq_len": 2048,
+        "model_type": "deberta-v2",
+        "global_step": 1640,
+        "epoch": 4.0
+      }
+    },
+    {
+      "checkpoint": "/home/work/hongseongmin/corefer/runs/combined_experiment/checkpoint-1980",
+      "seq_len": 1536,
+      "evaluated_at": "2025-10-10T10:36:04.704783",
+      "lambada_top1": 0.37,
+      "lambada_time": 69.57015419006348,
+      "coref_samples": 2400,
+      "coref_f1": 0.038565430576352804,
+      "coref_f1_time": 293.27186155319214,
+      "coref_top5": 0.6533333333333333,
+      "coref_top5_time": 294.4985227584839,
+      "total_time": 699.6553387641907,
+      "score": 0.3224261722305411,
+      "checkpoint_info": {
+        "path": "/home/work/hongseongmin/corefer/runs/combined_experiment/checkpoint-1980",
+        "name": "checkpoint-1980",
+        "seq_len": 1536,
+        "model_type": "deberta-v2",
+        "global_step": 1980,
+        "epoch": 5.0
+      }
+    },
+    {
+      "checkpoint": "/home/work/hongseongmin/corefer/runs/combined_experiment/checkpoint-2050",
+      "seq_len": 2048,
+      "evaluated_at": "2025-10-10T10:47:44.860762",
+      "lambada_top1": 0.36833333333333335,
+      "lambada_time": 69.7069206237793,
+      "coref_samples": 3200,
+      "coref_f1": 0.03288909671888395,
+      "coref_f1_time": 415.16660237312317,
+      "coref_top5": 0.6790625,
+      "coref_top5_time": 417.74420166015625,
+      "total_time": 963.980676651001,
+      "score": 0.3273743886875536,
+      "checkpoint_info": {
+        "path": "/home/work/hongseongmin/corefer/runs/combined_experiment/checkpoint-2050",
+        "name": "checkpoint-2050",
+        "seq_len": 2048,
+        "model_type": "deberta-v2",
+        "global_step": 2050,
+        "epoch": 5.0
+      }
+    },
+    {
+      "checkpoint": "/home/work/hongseongmin/corefer/runs/combined_experiment/checkpoint-396",
+      "seq_len": 1536,
+      "evaluated_at": "2025-10-10T11:03:49.007176",
+      "lambada_top1": 0.35833333333333334,
+      "lambada_time": 69.15845942497253,
+      "coref_samples": 2400,
+      "coref_f1": 0.04103633639808477,
+      "coref_f1_time": 293.4924786090851,
+      "coref_top5": 0.68375,
+      "coref_top5_time": 292.91457962989807,
+      "total_time": 698.3331437110901,
+      "score": 0.3290395345592339,
+      "checkpoint_info": {
+        "path": "/home/work/hongseongmin/corefer/runs/combined_experiment/checkpoint-396",
+        "name": "checkpoint-396",
+        "seq_len": 1536,
+        "model_type": "deberta-v2",
+        "global_step": 396,
+        "epoch": 1.0
+      }
+    },
+    {
+      "checkpoint": "/home/work/hongseongmin/corefer/runs/combined_experiment/checkpoint-410",
+      "seq_len": 2048,
+      "evaluated_at": "2025-10-10T11:15:27.756376",
+      "lambada_top1": 0.3466666666666667,
+      "lambada_time": 70.3639144897461,
+      "coref_samples": 3200,
+      "coref_f1": 0.03375944017182845,
+      "coref_f1_time": 419.0655245780945,
+      "coref_top5": 0.696875,
+      "coref_top5_time": 416.6935200691223,
+      "total_time": 967.6692321300507,
+      "score": 0.3265662760687314,
+      "checkpoint_info": {
+        "path": "/home/work/hongseongmin/corefer/runs/combined_experiment/checkpoint-410",
+        "name": "checkpoint-410",
+        "seq_len": 2048,
+        "model_type": "deberta-v2",
+        "global_step": 410,
+        "epoch": 1.0
+      }
+    },
+    {
+      "checkpoint": "/home/work/hongseongmin/corefer/runs/combined_experiment/checkpoint-792",
+      "seq_len": 1536,
+      "evaluated_at": "2025-10-10T11:31:35.648205",
+      "lambada_top1": 0.36333333333333334,
+      "lambada_time": 69.59010720252991,
+      "coref_samples": 2400,
+      "coref_f1": 0.03923555281454888,
+      "coref_f1_time": 296.4387972354889,
+      "coref_top5": 0.6616666666666666,
+      "coref_top5_time": 294.31513690948486,
+      "total_time": 704.3216681480408,
+      "score": 0.3231942211258195,
+      "checkpoint_info": {
+        "path": "/home/work/hongseongmin/corefer/runs/combined_experiment/checkpoint-792",
+        "name": "checkpoint-792",
+        "seq_len": 1536,
+        "model_type": "deberta-v2",
+        "global_step": 792,
+        "epoch": 2.0
+      }
+    },
+    {
+      "checkpoint": "/home/work/hongseongmin/corefer/runs/combined_experiment/checkpoint-820",
+      "seq_len": 2048,
+      "evaluated_at": "2025-10-10T11:43:20.179541",
+      "lambada_top1": 0.3616666666666667,
+      "lambada_time": 69.68998074531555,
+      "coref_samples": 3200,
+      "coref_f1": 0.03268268181582001,
+      "coref_f1_time": 419.8066084384918,
+      "coref_top5": 0.6803125,
+      "coref_top5_time": 416.99340534210205,
+      "total_time": 968.5531587600708,
+      "score": 0.32566682272632796,
+      "checkpoint_info": {
+        "path": "/home/work/hongseongmin/corefer/runs/combined_experiment/checkpoint-820",
+        "name": "checkpoint-820",
+        "seq_len": 2048,
+        "model_type": "deberta-v2",
+        "global_step": 820,
+        "epoch": 2.0
+      }
+    }
+  ]
+}

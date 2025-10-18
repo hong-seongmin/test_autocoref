@@ -1,0 +1,11 @@
+checkpoint,seq_len,lambada_top1,real1,real5,score,epoch
+runs/combined_experiment/checkpoint-396,1536,0.3583,0.6292,0.7917,0.5967,1.0
+runs/combined_experiment/checkpoint-410,2048,0.3467,0.6447,0.8084,0.6044,1.0
+runs/combined_experiment/checkpoint-792,1536,0.3633,0.6429,0.8087,0.6088,2.0
+runs/combined_experiment/checkpoint-820,2048,0.3617,0.6459,0.8116,0.6103,2.0
+runs/combined_experiment/checkpoint-1188,1536,0.3533,0.6613,0.8163,0.6154,3.0
+runs/combined_experiment/checkpoint-1230,2048,0.3500,0.6512,0.8137,0.6096,3.0
+runs/combined_experiment/checkpoint-1584,1536,0.3650,0.6633,0.8158,0.6196,4.0
+runs/combined_experiment/checkpoint-1640,2048,0.3600,0.6578,0.8194,0.6169,4.0
+runs/combined_experiment/checkpoint-1980,1536,0.3700,0.6675,0.8142,0.6222,5.0
+runs/combined_experiment/checkpoint-2050,2048,0.3683,0.6578,0.8200,0.6196,5.0

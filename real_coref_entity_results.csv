@@ -1,0 +1,4 @@
+checkpoint,seq_len,lambada_top1,real1,real5,score,epoch
+runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1400,2048,0.3767,0.6734,0.8253,0.6300,2.487111111111111
+runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1600,2048,0.3767,0.6778,0.8244,0.6314,2.8426666666666667
+runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1689,2048,0.3750,0.6778,0.8250,0.6311,3.0

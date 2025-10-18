@@ -1,13 +1,76 @@
 {
-  "evaluated_at": "2025-10-15T11:36:08.064462",
-  "status": "in_progress",
-  "completed_checkpoints": 5,
-  "total_checkpoints": 5,
-  "progress_pct": 100.0,
-  "elapsed_time_minutes": 151.069552954038,
+  "evaluated_at": "2025-10-10T17:35:30.037965",
+  "total_checkpoints": 10,
+  "successful_evaluations": 10,
+  "elapsed_time_minutes": 223.50157328049343,
   "lambada_limit": 600,
   "coref_limit": 1600,
-  "total_evaluated": 18,
+  "best_by_score": {
+    "checkpoint": "runs/combined_experiment/checkpoint-1980",
+    "seq_len": 1536,
+    "evaluated_at": "2025-10-10T17:07:57.384756",
+    "lambada_top1": 0.37,
+    "lambada_time": 70.00687336921692,
+    "coref_samples": 2400,
+    "real1": 0.6675,
+    "real1_time": 433.193323135376,
+    "real5": 0.8141666666666667,
+    "real5_time": 432.5243740081787,
+    "total_time": 1038.8843276500702,
+    "score": 0.62225,
+    "checkpoint_info": {
+      "path": "runs/combined_experiment/checkpoint-1980",
+      "name": "checkpoint-1980",
+      "seq_len": 1536,
+      "model_type": "deberta-v2",
+      "global_step": 1980,
+      "epoch": 5.0
+    }
+  },
+  "best_by_real1": {
+    "checkpoint": "runs/combined_experiment/checkpoint-1980",
+    "seq_len": 1536,
+    "evaluated_at": "2025-10-10T17:07:57.384756",
+    "lambada_top1": 0.37,
+    "lambada_time": 70.00687336921692,
+    "coref_samples": 2400,
+    "real1": 0.6675,
+    "real1_time": 433.193323135376,
+    "real5": 0.8141666666666667,
+    "real5_time": 432.5243740081787,
+    "total_time": 1038.8843276500702,
+    "score": 0.62225,
+    "checkpoint_info": {
+      "path": "runs/combined_experiment/checkpoint-1980",
+      "name": "checkpoint-1980",
+      "seq_len": 1536,
+      "model_type": "deberta-v2",
+      "global_step": 1980,
+      "epoch": 5.0
+    }
+  },
+  "best_by_real5": {
+    "checkpoint": "runs/combined_experiment/checkpoint-2050",
+    "seq_len": 2048,
+    "evaluated_at": "2025-10-10T17:35:29.791637",
+    "lambada_top1": 0.36833333333333335,
+    "lambada_time": 69.54734063148499,
+    "coref_samples": 3200,
+    "real1": 0.6578125,
+    "real1_time": 727.9665732383728,
+    "real5": 0.82,
+    "real5_time": 731.5254769325256,
+    "total_time": 1652.1901926994324,
+    "score": 0.619625,
+    "checkpoint_info": {
+      "path": "runs/combined_experiment/checkpoint-2050",
+      "name": "checkpoint-2050",
+      "seq_len": 2048,
+      "model_type": "deberta-v2",
+      "global_step": 2050,
+      "epoch": 5.0
+    }
+  },
   "results": [
     {
       "checkpoint": "runs/combined_experiment/checkpoint-396",
@@ -227,182 +290,6 @@
         "model_type": "deberta-v2",
         "global_step": 2050,
         "epoch": 5.0
-      }
-    },
-    {
-      "checkpoint": "runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1400",
-      "seq_len": 2048,
-      "evaluated_at": "2025-10-10T18:03:44.417159",
-      "lambada_top1": 0.37666666666666665,
-      "lambada_time": 73.19315004348755,
-      "coref_samples": 3200,
-      "real1": 0.6734375,
-      "real1_time": 730.6046588420868,
-      "real5": 0.8253125,
-      "real5_time": 728.5670921802521,
-      "total_time": 1660.9818618297577,
-      "score": 0.62996875,
-      "checkpoint_info": {
-        "path": "runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1400",
-        "name": "checkpoint-1400",
-        "seq_len": 2048,
-        "model_type": "deberta-v2",
-        "global_step": 1400,
-        "epoch": 2.487111111111111
-      }
-    },
-    {
-      "checkpoint": "runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1600",
-      "seq_len": 2048,
-      "evaluated_at": "2025-10-10T18:31:20.132125",
-      "lambada_top1": 0.37666666666666665,
-      "lambada_time": 70.43811249732971,
-      "coref_samples": 3200,
-      "real1": 0.6778125,
-      "real1_time": 731.347179889679,
-      "real5": 0.824375,
-      "real5_time": 729.1379745006561,
-      "total_time": 1655.4302983283997,
-      "score": 0.6314375,
-      "checkpoint_info": {
-        "path": "runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1600",
-        "name": "checkpoint-1600",
-        "seq_len": 2048,
-        "model_type": "deberta-v2",
-        "global_step": 1600,
-        "epoch": 2.8426666666666667
-      }
-    },
-    {
-      "checkpoint": "runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1689",
-      "seq_len": 2048,
-      "evaluated_at": "2025-10-10T18:58:56.569177",
-      "lambada_top1": 0.375,
-      "lambada_time": 69.76166653633118,
-      "coref_samples": 3200,
-      "real1": 0.6778125,
-      "real1_time": 727.740772485733,
-      "real5": 0.825,
-      "real5_time": 733.1387629508972,
-      "total_time": 1656.0803496837616,
-      "score": 0.6311249999999999,
-      "checkpoint_info": {
-        "path": "runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1689",
-        "name": "checkpoint-1689",
-        "seq_len": 2048,
-        "model_type": "deberta-v2",
-        "global_step": 1689,
-        "epoch": 3.0
-      }
-    },
-    {
-      "checkpoint": "runs/simple_2048/checkpoint-2075",
-      "seq_len": 2048,
-      "evaluated_at": "2025-10-15T09:41:16.040261",
-      "lambada_top1": 0.3466666666666667,
-      "lambada_time": 77.10723757743835,
-      "coref_samples": 3200,
-      "real1": 0.689375,
-      "real1_time": 980.362893819809,
-      "real5": 0.8465625,
-      "real5_time": 968.3277180194855,
-      "total_time": 2172.148436307907,
-      "score": 0.63371875,
-      "checkpoint_info": {
-        "path": "runs/simple_2048/checkpoint-2075",
-        "name": "checkpoint-2075",
-        "seq_len": 2048,
-        "model_type": "deberta-v2",
-        "global_step": 2075,
-        "epoch": 0.5000677802714223
-      }
-    },
-    {
-      "checkpoint": "runs/simple_2048/checkpoint-4150",
-      "seq_len": 2048,
-      "evaluated_at": "2025-10-15T10:11:20.091307",
-      "lambada_top1": 0.3566666666666667,
-      "lambada_time": 73.76520848274231,
-      "coref_samples": 3200,
-      "real1": 0.7178125,
-      "real1_time": 801.1542630195618,
-      "real5": 0.8728125,
-      "real5_time": 807.3399538993835,
-      "total_time": 1803.7708022594452,
-      "score": 0.65596875,
-      "checkpoint_info": {
-        "path": "runs/simple_2048/checkpoint-4150",
-        "name": "checkpoint-4150",
-        "seq_len": 2048,
-        "model_type": "deberta-v2",
-        "global_step": 4150,
-        "epoch": 1.0
-      }
-    },
-    {
-      "checkpoint": "runs/simple_2048/checkpoint-6225",
-      "seq_len": 2048,
-      "evaluated_at": "2025-10-15T10:40:25.945677",
-      "lambada_top1": 0.3616666666666667,
-      "lambada_time": 74.53912806510925,
-      "coref_samples": 3200,
-      "real1": 0.7315625,
-      "real1_time": 800.4416449069977,
-      "real5": 0.879375,
-      "real5_time": 739.483535528183,
-      "total_time": 1745.6009724140167,
-      "score": 0.6649375000000001,
-      "checkpoint_info": {
-        "path": "runs/simple_2048/checkpoint-6225",
-        "name": "checkpoint-6225",
-        "seq_len": 2048,
-        "model_type": "deberta-v2",
-        "global_step": 6225,
-        "epoch": 1.5000677802714222
-      }
-    },
-    {
-      "checkpoint": "runs/simple_2048/checkpoint-8300",
-      "seq_len": 2048,
-      "evaluated_at": "2025-10-15T11:08:14.509478",
-      "lambada_top1": 0.37,
-      "lambada_time": 68.52843713760376,
-      "coref_samples": 3200,
-      "real1": 0.7328125,
-      "real1_time": 742.2794852256775,
-      "real5": 0.881875,
-      "real5_time": 739.0660104751587,
-      "total_time": 1668.3193182945251,
-      "score": 0.6686875,
-      "checkpoint_info": {
-        "path": "runs/simple_2048/checkpoint-8300",
-        "name": "checkpoint-8300",
-        "seq_len": 2048,
-        "model_type": "deberta-v2",
-        "global_step": 8300,
-        "epoch": 2.0
-      }
-    },
-    {
-      "checkpoint": "runs/simple_2048/checkpoint-10375",
-      "seq_len": 2048,
-      "evaluated_at": "2025-10-15T11:36:07.843657",
-      "lambada_top1": 0.365,
-      "lambada_time": 68.8391923904419,
-      "coref_samples": 3200,
-      "real1": 0.73375,
-      "real1_time": 741.9680829048157,
-      "real5": 0.883125,
-      "real5_time": 743.0857787132263,
-      "total_time": 1673.1225938796997,
-      "score": 0.6679375000000001,
-      "checkpoint_info": {
-        "path": "runs/simple_2048/checkpoint-10375",
-        "name": "checkpoint-10375",
-        "seq_len": 2048,
-        "model_type": "deberta-v2",
-        "global_step": 10375,
-        "epoch": 2.500067780271422
       }
     }
   ]

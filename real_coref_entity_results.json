@@ -1,0 +1,142 @@
+{
+  "evaluated_at": "2025-10-10T18:58:56.948804",
+  "total_checkpoints": 3,
+  "successful_evaluations": 3,
+  "elapsed_time_minutes": 82.89190395673116,
+  "lambada_limit": 600,
+  "coref_limit": 1600,
+  "best_by_score": {
+    "checkpoint": "runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1600",
+    "seq_len": 2048,
+    "evaluated_at": "2025-10-10T18:31:20.132125",
+    "lambada_top1": 0.37666666666666665,
+    "lambada_time": 70.43811249732971,
+    "coref_samples": 3200,
+    "real1": 0.6778125,
+    "real1_time": 731.347179889679,
+    "real5": 0.824375,
+    "real5_time": 729.1379745006561,
+    "total_time": 1655.4302983283997,
+    "score": 0.6314375,
+    "checkpoint_info": {
+      "path": "runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1600",
+      "name": "checkpoint-1600",
+      "seq_len": 2048,
+      "model_type": "deberta-v2",
+      "global_step": 1600,
+      "epoch": 2.8426666666666667
+    }
+  },
+  "best_by_real1": {
+    "checkpoint": "runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1600",
+    "seq_len": 2048,
+    "evaluated_at": "2025-10-10T18:31:20.132125",
+    "lambada_top1": 0.37666666666666665,
+    "lambada_time": 70.43811249732971,
+    "coref_samples": 3200,
+    "real1": 0.6778125,
+    "real1_time": 731.347179889679,
+    "real5": 0.824375,
+    "real5_time": 729.1379745006561,
+    "total_time": 1655.4302983283997,
+    "score": 0.6314375,
+    "checkpoint_info": {
+      "path": "runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1600",
+      "name": "checkpoint-1600",
+      "seq_len": 2048,
+      "model_type": "deberta-v2",
+      "global_step": 1600,
+      "epoch": 2.8426666666666667
+    }
+  },
+  "best_by_real5": {
+    "checkpoint": "runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1400",
+    "seq_len": 2048,
+    "evaluated_at": "2025-10-10T18:03:44.417159",
+    "lambada_top1": 0.37666666666666665,
+    "lambada_time": 73.19315004348755,
+    "coref_samples": 3200,
+    "real1": 0.6734375,
+    "real1_time": 730.6046588420868,
+    "real5": 0.8253125,
+    "real5_time": 728.5670921802521,
+    "total_time": 1660.9818618297577,
+    "score": 0.62996875,
+    "checkpoint_info": {
+      "path": "runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1400",
+      "name": "checkpoint-1400",
+      "seq_len": 2048,
+      "model_type": "deberta-v2",
+      "global_step": 1400,
+      "epoch": 2.487111111111111
+    }
+  },
+  "results": [
+    {
+      "checkpoint": "runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1400",
+      "seq_len": 2048,
+      "evaluated_at": "2025-10-10T18:03:44.417159",
+      "lambada_top1": 0.37666666666666665,
+      "lambada_time": 73.19315004348755,
+      "coref_samples": 3200,
+      "real1": 0.6734375,
+      "real1_time": 730.6046588420868,
+      "real5": 0.8253125,
+      "real5_time": 728.5670921802521,
+      "total_time": 1660.9818618297577,
+      "score": 0.62996875,
+      "checkpoint_info": {
+        "path": "runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1400",
+        "name": "checkpoint-1400",
+        "seq_len": 2048,
+        "model_type": "deberta-v2",
+        "global_step": 1400,
+        "epoch": 2.487111111111111
+      }
+    },
+    {
+      "checkpoint": "runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1600",
+      "seq_len": 2048,
+      "evaluated_at": "2025-10-10T18:31:20.132125",
+      "lambada_top1": 0.37666666666666665,
+      "lambada_time": 70.43811249732971,
+      "coref_samples": 3200,
+      "real1": 0.6778125,
+      "real1_time": 731.347179889679,
+      "real5": 0.824375,
+      "real5_time": 729.1379745006561,
+      "total_time": 1655.4302983283997,
+      "score": 0.6314375,
+      "checkpoint_info": {
+        "path": "runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1600",
+        "name": "checkpoint-1600",
+        "seq_len": 2048,
+        "model_type": "deberta-v2",
+        "global_step": 1600,
+        "epoch": 2.8426666666666667
+      }
+    },
+    {
+      "checkpoint": "runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1689",
+      "seq_len": 2048,
+      "evaluated_at": "2025-10-10T18:58:56.569177",
+      "lambada_top1": 0.375,
+      "lambada_time": 69.76166653633118,
+      "coref_samples": 3200,
+      "real1": 0.6778125,
+      "real1_time": 727.740772485733,
+      "real5": 0.825,
+      "real5_time": 733.1387629508972,
+      "total_time": 1656.0803496837616,
+      "score": 0.6311249999999999,
+      "checkpoint_info": {
+        "path": "runs/entity_coref_finetune/coref_finetune_2048_20251010_063737/checkpoint-1689",
+        "name": "checkpoint-1689",
+        "seq_len": 2048,
+        "model_type": "deberta-v2",
+        "global_step": 1689,
+        "epoch": 3.0
+      }
+    }
+  ]
+}
