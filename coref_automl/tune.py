@@ -2,11 +2,13 @@
 from __future__ import annotations
 import os
 import gc
+import json
 import math
 import random
 import time
 from collections import defaultdict
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 
 import numpy as np
@@ -16,6 +18,7 @@ from datasets import load_dataset, disable_caching
 from transformers import (
     AutoTokenizer,
     AutoModelForMaskedLM,
+    AutoConfig,
     DataCollatorForLanguageModeling,
     Trainer,
     TrainingArguments,
@@ -35,6 +38,45 @@ CANDIDATE_MODELS = [
 ]
 
 MASK_TOKEN_FALLBACK = "[MASK]"
+
+
+# ────────────────────────────────────────────────────────────────────────────────
+# Checkpoint Sequence Length Detection
+# ────────────────────────────────────────────────────────────────────────────────
+def detect_seq_len_from_checkpoint(model_path: str) -> Optional[int]:
+    """
+    Detect the sequence length (max_position_embeddings) from a checkpoint.
+
+    Args:
+        model_path: Path to checkpoint directory or HuggingFace model ID
+
+    Returns:
+        Detected sequence length, or None if detection fails
+    """
+    # Try local checkpoint first
+    config_path = Path(model_path) / "config.json"
+    if config_path.exists():
+        try:
+            with open(config_path, encoding="utf-8") as f:
+                config = json.load(f)
+            seq_len = config.get("max_position_embeddings")
+            if seq_len:
+                print(f"✓ Detected seq_len={seq_len} from local checkpoint: {model_path}")
+                return int(seq_len)
+        except Exception as e:
+            print(f"Warning: Failed to read config from {config_path}: {e}")
+
+    # Try HuggingFace model config
+    try:
+        config = AutoConfig.from_pretrained(model_path)
+        seq_len = getattr(config, "max_position_embeddings", None)
+        if seq_len:
+            print(f"✓ Detected seq_len={seq_len} from HuggingFace model: {model_path}")
+            return int(seq_len)
+    except Exception as e:
+        print(f"Info: Could not load HuggingFace config for {model_path}: {e}")
+
+    return None
 
 
 # ────────────────────────────────────────────────────────────────────────────────
@@ -81,15 +123,24 @@ def build_eval_from_lambada(limit=1000, seed=42) -> List[Dict[str, str]]:
 
 
 # ────────────────────────────────────────────────────────────────────────────────
-# Wikipedia 기반 Coref-Recall@k 평가 셋 (실데이터, 휴리스틱)
-#  - 대명사(NP)를 [MASK]로, 이전 문맥(현재/직전 문장)의 '명사 집합'을 골드 후보로 정의
-#  - 리콜: 예측 top-k 명사 중 하나라도 문맥 명사에 등장하면 hit
+# Real Entity Coref 평가 셋
+#  - 대명사 없이 같은 명사가 2번 이상 나오는 경우만 사용
+#  - 2번째 명사를 [MASK]로 변환하고, 정답은 해당 명사
 # ────────────────────────────────────────────────────────────────────────────────
-def build_coref_eval_set(
+def build_real_coref_eval_set(
     limit=2000,
     seed=123,
     max_seq_len: int = 512,
 ) -> List[Dict[str, Any]]:
+    """
+    대명사 없고 같은 명사가 2번 이상 나오는 실제 상호참조 평가 데이터 생성
+
+    Returns:
+        List of dicts with keys:
+        - masked: 2번째 명사를 [MASK]로 바꾼 텍스트
+        - target: 정답 명사
+        - full_text: 원본 전체 텍스트
+    """
     from kiwipiepy import Kiwi
     kiwi = Kiwi()
     rnd = random.Random(seed)
@@ -97,122 +148,91 @@ def build_coref_eval_set(
     # 다중 데이터 소스
     sources = [
         ("wikimedia/wikipedia", "20231101.ko", "train"),
-        ("klue", "ynat", "validation"),  # 뉴스 데이터
+        ("klue", "ynat", "validation"),
     ]
+
+    PRONOUN_POS = {"NP"}
+    NOUN_POS = {"NNG", "NNP"}
 
     items: List[Dict[str, Any]] = []
     scale = max(1, max_seq_len // 512)
     effective_limit = max(limit, int(limit * scale))
     target_per_source = max(1, math.ceil(effective_limit / len(sources)))
-    limit_per_text = min(12, max(5, 5 + 2 * (scale - 1)))
-    window_radius = min(3, max(1, scale - 1))
-    per_source_counts = defaultdict(int)
 
     for source, subset, split in sources:
         try:
-            ds = load_dataset(source, subset, split=split)
-            idxs = list(range(len(ds)))
-            rnd.shuffle(idxs)
+            ds = load_dataset(source, subset, split=split, streaming=True)
+            ds = ds.shuffle(seed=seed, buffer_size=10000)
 
-            for i in idxs:
-                if per_source_counts[source] >= target_per_source:
+            processed_count = 0
+            for example in ds:
+                if processed_count >= target_per_source:
                     break
+
+                # 텍스트 추출
                 if source == "wikimedia/wikipedia":
-                    text = ds[i]["text"]
+                    text = example["text"]
                 elif source == "klue":
-                    text = f"{ds[i]['title']} {ds[i].get('content', '')}".strip()
+                    text = f"{example['title']} {example.get('content', '')}".strip()
                 else:
                     continue
 
-                if not text or len(text) < 50:  # 최소 길이 증가
+                if not text or len(text) < 100:
                     continue
 
-                processed_items = process_coref_text(
-                    text,
-                    kiwi,
-                    limit_per_text=limit_per_text,
-                    window_radius=window_radius,
-                )
-                for item in processed_items:
-                    if per_source_counts[source] >= target_per_source:
+                # 형태소 분석
+                tokens = kiwi.tokenize(text)
+
+                # 대명사가 있는지 확인
+                has_pronoun = any(tk.tag in PRONOUN_POS for tk in tokens)
+                if has_pronoun:
+                    continue  # 대명사가 있으면 스킵
+
+                # 명사 등장 위치 추적
+                noun_positions = defaultdict(list)  # {명사: [(start, end, index), ...]}
+                for idx, tk in enumerate(tokens):
+                    if tk.tag in NOUN_POS and len(tk.form) >= 2:  # 2글자 이상 명사만
+                        noun_positions[tk.form].append((tk.start, tk.end, idx))
+
+                # 2번 이상 등장한 명사 찾기
+                repeated_nouns = {noun: positions for noun, positions in noun_positions.items()
+                                 if len(positions) >= 2}
+
+                if not repeated_nouns:
+                    continue
+
+                # 각 반복 명사에 대해 샘플 생성 (텍스트당 최대 3개)
+                samples_from_text = 0
+                for noun, positions in repeated_nouns.items():
+                    if samples_from_text >= 3:
                         break
-                    items.append(item)
-                    per_source_counts[source] += 1
-                if per_source_counts[source] >= target_per_source:
-                    break
+
+                    # 2번째 등장 위치를 마스킹
+                    second_pos = positions[1]
+                    start, end, idx = second_pos
+
+                    # [MASK] 생성
+                    masked_text = text[:start] + MASK_TOKEN_FALLBACK + text[end:]
+
+                    items.append({
+                        "masked": masked_text,
+                        "target": noun,
+                        "full_text": text,
+                    })
+
+                    samples_from_text += 1
+                    processed_count += 1
+
+                    if processed_count >= target_per_source:
+                        break
+
         except Exception as e:
             print(f"Warning: Failed to load {source}: {e}")
             continue
 
-    # 품질 필터링
-    filtered_items = []
-    for item in items:
-        if len(item["context_nouns"]) >= 2:  # 최소 2개 이상의 문맥 명사
-            filtered_items.append(item)
-
-    return filtered_items[:effective_limit]
-
-
-def process_coref_text(
-    text: str,
-    kiwi,
-    limit_per_text: int = 5,
-    window_radius: int = 1,
-) -> List[Dict[str, Any]]:
-    """단일 텍스트에서 coref 샘플 생성"""
-    import re
-
-    def sent_split(text: str) -> List[str]:
-        s = re.split(r"(?<=[.!?…])\s+", text)
-        return [t.strip() for t in s if t.strip()]
-
-    PRONOUN_POS = {"NP"}
-    NOUN_POS = {"NNG", "NNP"}
-
-    items = []
-    sents = sent_split(text)
-
-    for si, s in enumerate(sents):
-        if len(items) >= limit_per_text:
-            break
-
-        toks = kiwi.tokenize(s)
-        pron_candidates = []
-
-        # 대명사 후보 찾기
-        for ti, tk in enumerate(toks):
-            if tk.tag in PRONOUN_POS:
-                pron_candidates.append((ti, tk))
-
-        for pron_idx, pron_tok in pron_candidates:
-            # [MASK] 삽입
-            start, end = pron_tok.start, pron_tok.end
-            masked = s[:start] + MASK_TOKEN_FALLBACK + s[end:]
-
-            # 확장된 문맥 (현재 문장 전체 + 주변 문장)
-            context_parts = []
-            for offset in range(-window_radius, window_radius + 1):
-                idx = si + offset
-                if 0 <= idx < len(sents):
-                    context_parts.append(sents[idx])
-
-            context_text = " ".join(context_parts)
-
-            # 문맥 명사 추출
-            nouns = set()
-            for tkn in kiwi.tokenize(context_text):
-                if tkn.tag in NOUN_POS:
-                    nouns.add(tkn.form)
-
-            if len(nouns) >= 2:  # 품질 기준 강화
-                items.append({
-                    "masked": masked,
-                    "context_nouns": list(nouns),
-                    "pronoun": pron_tok.form,
-                    "sentence": s
-                })
-
-    return items
+    # 셔플 및 제한
+    rnd.shuffle(items)
+    return items[:effective_limit]
 
 
 # ────────────────────────────────────────────────────────────────────────────────
@@ -320,15 +340,51 @@ def batched_fill_and_filter_nouns(
     mask_token: str,
     batch_size: int = 64,
     seq_len: Optional[int] = None,
+    show_progress: bool = True,
 ) -> List[List[str]]:
     """list 입력 → list[list[pred_token]] 반환 (명사 필터링, 길이 안전)"""
     clipped = [
         clip_around_mask(t, mask_token, seq_len=seq_len)
         for t in masked_texts
     ]
+
+    # 진행률 표시 추가
+    if show_progress:
+        try:
+            from tqdm import tqdm
+            num_batches = (len(clipped) + batch_size - 1) // batch_size
+            print(f"      Processing {len(clipped)} samples in {num_batches} batches (batch_size={batch_size})...")
+
+            preds_all: List[List[str]] = []
+            with tqdm(total=len(clipped), desc="      Inference", unit="sample", ncols=100, leave=False) as pbar:
+                for i in range(0, len(clipped), batch_size):
+                    batch = clipped[i:i+batch_size]
+                    outs = fill(batch, top_k=max(50, k), batch_size=len(batch))
+
+                    # 결과 처리
+                    if not isinstance(outs[0], list):
+                        outs = [outs]
+
+                    for item in outs:
+                        cand: List[str] = []
+                        for p in item:
+                            token_str = p.get("token_str", "").strip().replace("##", "")
+                            if token_str and is_noun(token_str):
+                                cand.append(token_str)
+                            if len(cand) >= k:
+                                break
+                        preds_all.append(cand)
+
+                    pbar.update(len(batch))
+
+            return preds_all
+        except ImportError:
+            # tqdm 없으면 기본 처리
+            pass
+
+    # 기본 처리 (진행률 없음)
     outs = fill(clipped, top_k=max(50, k), batch_size=batch_size)
     preds_all: List[List[str]] = []
-    # 파이프라인은 list 입력 시 list[list[dict]]를 반환
     for item in outs:
         cand: List[str] = []
         for p in item:
@@ -370,67 +426,119 @@ def eval_lambada_topk(
     return ok / max(1, len(golds))
 
 
-def eval_coref_recall_topk(
+def eval_real_coref_top1(
     fill,
     eval_items: List[Dict[str, Any]],
     mask_token: str,
-    k: int = 5,
     batch_size: int = 64,
     seq_len: Optional[int] = None,
 ) -> float:
+    """
+    Real Coref Top-1 정확도
+    2번째 명사를 마스킹했을 때 top-1 예측이 정답 명사인지 확인
+    """
     masked = [it["masked"] for it in eval_items]
-    ctx_nouns = [set(it["context_nouns"]) for it in eval_items]
+    targets = [it["target"] for it in eval_items]
     preds = batched_fill_and_filter_nouns(
         fill,
         masked,
-        k=k,
+        k=1,
         mask_token=mask_token,
         batch_size=batch_size,
         seq_len=seq_len,
     )
+
     ok = 0
-    for ctx, cands in zip(ctx_nouns, preds):
-        if any(c in ctx for c in cands):
+    for target, cands in zip(targets, preds):
+        if not cands:
+            continue
+        # Top-1 예측이 정답인지 확인 (정확히 일치 or 포함관계)
+        hit = (target == cands[0]) or (target in cands[0]) or (cands[0] in target)
+        if hit:
             ok += 1
+
     return ok / max(1, len(eval_items))
 
 
-def eval_coref_f1(
+def eval_real_coref_top5(
     fill,
     eval_items: List[Dict[str, Any]],
     mask_token: str,
-    k: int = 5,
     batch_size: int = 64,
     seq_len: Optional[int] = None,
 ) -> float:
-    """Coref F1 Score 계산"""
+    """
+    Real Coref Top-5 정확도
+    2번째 명사를 마스킹했을 때 top-5 예측에 정답 명사가 포함되는지 확인
+    """
     masked = [it["masked"] for it in eval_items]
-    ctx_nouns = [set(it["context_nouns"]) for it in eval_items]
+    targets = [it["target"] for it in eval_items]
     preds = batched_fill_and_filter_nouns(
         fill,
         masked,
-        k=k,
+        k=5,
         mask_token=mask_token,
         batch_size=batch_size,
         seq_len=seq_len,
     )
 
-    tp = fp = fn = 0
-    for ctx, cands in zip(ctx_nouns, preds):
-        pred_set = set(cands)
-        ctx_set = ctx
+    ok = 0
+    for target, cands in zip(targets, preds):
+        if not cands:
+            continue
+        # Top-5 중에 정답이 있는지 확인 (정확히 일치 or 포함관계)
+        hit = any((target == c) or (target in c) or (c in target) for c in cands)
+        if hit:
+            ok += 1
 
-        # True Positives: 예측된 명사가 문맥에 있음
-        tp += len(pred_set & ctx_set)
-        # False Positives: 예측된 명사가 문맥에 없음
-        fp += len(pred_set - ctx_set)
-        # False Negatives: 문맥에 있는 명사를 예측하지 못함
-        fn += len(ctx_set - pred_set)
+    return ok / max(1, len(eval_items))
 
-    precision = tp / (tp + fp) if (tp + fp) > 0 else 0
-    recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
-    return f1
+
+def eval_real_coref_combined(
+    fill,
+    eval_items: List[Dict[str, Any]],
+    mask_token: str,
+    batch_size: int = 64,
+    seq_len: Optional[int] = None,
+) -> Tuple[float, float]:
+    """
+    Real Coref Top-1과 Top-5를 한 번에 계산 (최적화)
+
+    한 번의 모델 추론으로 top-5를 가져온 후 Real@1과 Real@5를 동시에 계산하여
+    추론 시간을 약 50% 절감합니다.
+
+    Returns:
+        Tuple[real1, real5]: (Real@1 정확도, Real@5 정확도)
+    """
+    masked = [it["masked"] for it in eval_items]
+    targets = [it["target"] for it in eval_items]
+
+    # 한 번만 추론 (top-5)
+    preds = batched_fill_and_filter_nouns(
+        fill,
+        masked,
+        k=5,
+        mask_token=mask_token,
+        batch_size=batch_size,
+        seq_len=seq_len,
+    )
+
+    real1_ok = 0
+    real5_ok = 0
+    for target, cands in zip(targets, preds):
+        if not cands:
+            continue
+
+        # Real@1: top-1만 확인
+        if (target == cands[0]) or (target in cands[0]) or (cands[0] in target):
+            real1_ok += 1
+
+        # Real@5: top-5 중에 있는지 확인
+        if any((target == c) or (target in c) or (c in target) for c in cands):
+            real5_ok += 1
+
+    total = max(1, len(eval_items))
+    return real1_ok / total, real5_ok / total
 
 
 # ────────────────────────────────────────────────────────────────────────────────
@@ -524,21 +632,99 @@ def objective(trial: optuna.Trial, model_name: str, planned_trials: int, train_l
     warmup = trial.suggest_float("warmup_ratio", 0.0, 0.2)
     min_prob = trial.suggest_float("min_prob", 0.05, 0.15)
     max_prob = trial.suggest_float("max_prob", 0.20, 0.35)
-    seq_len = trial.suggest_categorical("max_length", [256, 384, 512])
+
+    # Detect seq_len from checkpoint if available, otherwise use Optuna
+    detected_seq_len = detect_seq_len_from_checkpoint(model_name)
+    if detected_seq_len:
+        seq_len = detected_seq_len
+        print(f"→ Using detected seq_len={seq_len} from checkpoint")
+    else:
+        # Expanded choices to support various sequence lengths
+        seq_len = trial.suggest_categorical("max_length", [256, 384, 512, 1536, 2048])
+        print(f"→ Using Optuna-suggested seq_len={seq_len}")
+
     # DeBERTa와 gradient checkpointing 호환성 문제로 비활성화
-    grad_ckpt = False if "deberta" in model_name.lower() else trial.suggest_categorical("gradient_checkpointing", [False, True])
+    # Check both model_name and if it's a checkpoint (which might be DeBERTa)
+    is_deberta = "deberta" in model_name.lower() or detected_seq_len is not None
+    grad_ckpt = False if is_deberta else trial.suggest_categorical("gradient_checkpointing", [False, True])
     llrd = trial.suggest_float("llrd", 0.85, 1.0)
 
-    # 로드
+    # 로드 - For checkpoints with resized embeddings, handle specially
     tok = AutoTokenizer.from_pretrained(model_name)
-    mdl = AutoModelForMaskedLM.from_pretrained(model_name)
+
+    # Update tokenizer's model_max_length to match seq_len
+    if detected_seq_len:
+        tok.model_max_length = detected_seq_len
+        print(f"→ Updated tokenizer model_max_length to {detected_seq_len}")
+
+    if detected_seq_len:
+        # Load model with ignore_mismatched_sizes to handle rel_embeddings size difference
+        print(f"→ Loading checkpoint with ignore_mismatched_sizes=True...")
+        mdl = AutoModelForMaskedLM.from_pretrained(model_name, ignore_mismatched_sizes=True)
+
+        # Now manually load the resized rel_embeddings from the checkpoint
+        from safetensors import safe_open
+        checkpoint_path = Path(model_name) / "model.safetensors"
+        if checkpoint_path.exists():
+            with safe_open(str(checkpoint_path), framework='pt', device='cpu') as f:
+                if 'deberta.encoder.rel_embeddings.weight' in f.keys():
+                    rel_embed_weight = f.get_tensor('deberta.encoder.rel_embeddings.weight')
+                    print(f"→ Manually loading rel_embeddings with shape {rel_embed_weight.shape}")
+
+                    # Create new embedding with the checkpoint's size
+                    new_size, embed_dim = rel_embed_weight.shape
+                    new_rel = torch.nn.Embedding(new_size, embed_dim)
+                    new_rel.weight.data = rel_embed_weight.clone()
+                    mdl.deberta.encoder.rel_embeddings = new_rel.to(mdl.device)
+
+                    # Also handle position_embeddings if present
+                    if 'deberta.embeddings.position_embeddings.weight' in f.keys():
+                        pos_embed_weight = f.get_tensor('deberta.embeddings.position_embeddings.weight')
+                        print(f"→ Manually loading position_embeddings with shape {pos_embed_weight.shape}")
+                        pos_size, pos_dim = pos_embed_weight.shape
+                        new_pos = torch.nn.Embedding(pos_size, pos_dim)
+                        new_pos.weight.data = pos_embed_weight.clone()
+                        mdl.deberta.embeddings.position_embeddings = new_pos.to(mdl.device)
+
+        mdl.config.max_position_embeddings = detected_seq_len
+        print(f"✓ Loaded checkpoint with seq_len={detected_seq_len}")
+    else:
+        # Fresh model or HuggingFace model - load normally
+        mdl = AutoModelForMaskedLM.from_pretrained(model_name)
+
+        # Resize position embeddings if we need a different seq_len than the model default
+        if seq_len > mdl.config.max_position_embeddings:
+            print(f"→ Resizing position embeddings from {mdl.config.max_position_embeddings} to {seq_len}")
+
+            # DebertaV2 uses relative position embeddings in encoder.rel_embeddings
+            position_embed = getattr(mdl.deberta.embeddings, "position_embeddings", None)
+            if position_embed is not None:
+                old_num, dim = position_embed.weight.shape
+                new_embed = torch.nn.Embedding(seq_len, dim)
+                new_embed.weight.data[:old_num] = position_embed.weight.data.clone()
+                if seq_len > old_num:
+                    new_embed.weight.data[old_num:] = position_embed.weight.data[-1:].repeat(seq_len - old_num, 1)
+                mdl.deberta.embeddings.position_embeddings = new_embed.to(mdl.device)
+
+            rel_embeddings = getattr(mdl.deberta.encoder, "rel_embeddings", None)
+            if rel_embeddings is not None:
+                old_rel_num, rel_dim = rel_embeddings.weight.shape
+                new_rel = torch.nn.Embedding(seq_len, rel_dim)
+                new_rel.weight.data[:old_rel_num] = rel_embeddings.weight.data.clone()
+                if seq_len > old_rel_num:
+                    new_rel.weight.data[old_rel_num:] = rel_embeddings.weight.data[-1:].repeat(seq_len - old_rel_num, 1)
+                mdl.deberta.encoder.rel_embeddings = new_rel.to(mdl.device)
+
+            mdl.config.max_position_embeddings = seq_len
+            print(f"✓ Position embeddings resized successfully")
+
     if grad_ckpt:
         mdl.gradient_checkpointing_enable()
 
     # 메모리 기반 BS/grad_acc 자동 산정
     max_bs = find_max_bs(mdl, tok, seq_len, start=2, limit=256)
     # 너무 작은 경우 학습 안정성을 위해 하한 2
-    per_device_bs = max(2, max_bs)
+    per_device_bs = max(1, max_bs // 2)  # 50% 마진
     # throughput 극대화: grad_acc은 1로 시작(실제 step time은 콜백에서 관측)
     grad_acc = 1
 
@@ -629,10 +815,16 @@ def objective(trial: optuna.Trial, model_name: str, planned_trials: int, train_l
     tr.train()
 
     # ===== 평가(실데이터 기반) =====
+    print(f"\n{'─'*80}")
+    print("📊 Starting evaluation phase...")
+    print(f"{'─'*80}\n")
+
     # Fill-Mask 파이프라인 (주의: truncation/max_length kwargs 금지)
+    print("🔧 Creating fill-mask pipeline...")
     fill = pipeline("fill-mask", model=mdl, tokenizer=tok, device=0 if device == "cuda" else -1)
 
     # Ko-LAMBADA 정확도
+    print("📖 [1/2] Evaluating LAMBADA (600 samples)...")
     eval_lbd = build_eval_from_lambada(limit=600)
     l_t1 = eval_lambada_topk(
         fill,
@@ -642,34 +834,44 @@ def objective(trial: optuna.Trial, model_name: str, planned_trials: int, train_l
         batch_size=64,
         seq_len=seq_len,
     )
+    print(f"   ✓ LAMBADA@1 = {l_t1:.4f}")
 
-    # Coref 평가 (F1 + top5 유지)
-    eval_coref = build_coref_eval_set(limit=1600, max_seq_len=seq_len)  # 규모 증가
-    c_f1 = eval_coref_f1(
+    # Real Coref 평가 (대명사 없고 같은 명사 2번 이상)
+    print("🔗 [2/2] Building real coref evaluation set (1600 samples)...")
+    eval_coref = build_real_coref_eval_set(limit=1600, max_seq_len=seq_len, seed=999)
+    print(f"   ✓ Real coref set built: {len(eval_coref)} samples")
+
+    print("🔗 Evaluating real coref metrics...")
+    real1 = eval_real_coref_top1(
         fill,
         eval_coref,
         mask_token=tok.mask_token or MASK_TOKEN_FALLBACK,
-        k=5,
         batch_size=64,
         seq_len=seq_len,
     )
-    c_t5 = eval_coref_recall_topk(
+    print(f"   ✓ Real@1 = {real1:.4f}")
+
+    real5 = eval_real_coref_top5(
         fill,
         eval_coref,
         mask_token=tok.mask_token or MASK_TOKEN_FALLBACK,
-        k=5,
         batch_size=64,
         seq_len=seq_len,
     )
+    print(f"   ✓ Real@5 = {real5:.4f}")
+
+    print(f"\n{'─'*80}")
+    print(f"✅ Evaluation complete!")
+    print(f"{'─'*80}\n")
 
     # 대시보드 송신
-    BUS.log(section="eval_stream", model=model_name, trial=trial.number, lbd_top1=l_t1, coref_f1=c_f1, coref_top5=c_t5)
+    BUS.log(section="eval_stream", model=model_name, trial=trial.number, lbd_top1=l_t1, real1=real1, real5=real5)
 
-    # 스코어(F1 + top5 기반)
-    score = 0.4 * c_f1 + 0.3 * c_t5 + 0.3 * l_t1
+    # 스코어 (Real1, Real5 기반)
+    score = 0.4 * real1 + 0.3 * real5 + 0.3 * l_t1
     trial.set_user_attr("lbd_top1", l_t1)
-    trial.set_user_attr("coref_f1", c_f1)
-    trial.set_user_attr("coref_top5", c_t5)
+    trial.set_user_attr("real1", real1)
+    trial.set_user_attr("real5", real5)
 
     # 학습 종료 이벤트
     BUS.log(event="trial_end", model=model_name, trial=trial.number, ts=time.time())
@@ -686,19 +888,127 @@ def objective(trial: optuna.Trial, model_name: str, planned_trials: int, train_l
 # ────────────────────────────────────────────────────────────────────────────────
 # Study 실행
 # ────────────────────────────────────────────────────────────────────────────────
+class TeeLogger:
+    """Duplicate stdout to both console and file"""
+    def __init__(self, file_path):
+        self.terminal = __import__('sys').stdout
+        self.log = open(file_path, 'w', encoding='utf-8')
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+        self.log.flush()
+
+    def flush(self):
+        self.terminal.flush()
+        self.log.flush()
+
+    def close(self):
+        self.log.close()
+
+
 def run_study(model_name: str, n_trials: int = 15, seed: int = 42, train_limit: Optional[int] = None):
+    import sys
+    from datetime import datetime, timedelta
+
+    # Setup automatic logging
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_dir = Path("./runs") / "tune_logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / f"tune_{model_name.replace('/', '_')}_{timestamp}.log"
+
+    print(f"📝 Logging to: {log_file}")
+    tee = TeeLogger(str(log_file))
+    sys.stdout = tee
+
+    # Track timing for ETA
+    trial_times = []
+    study_start_time = time.time()
+
     sampler = optuna.samplers.TPESampler(seed=seed)
     pruner = optuna.pruners.MedianPruner(n_startup_trials=4, n_warmup_steps=0)
     study = optuna.create_study(direction="maximize", sampler=sampler, pruner=pruner, study_name=f"HPO-{model_name}")
 
     def _obj(t: optuna.Trial):
-        return objective(t, model_name, planned_trials=n_trials, train_limit=train_limit, seed=seed)
+        trial_start = time.time()
+
+        # Print trial header
+        avg_time = sum(trial_times) / len(trial_times) if trial_times else None
+        if avg_time:
+            est_trial_time = timedelta(seconds=int(avg_time))
+            est_remaining = timedelta(seconds=int(avg_time * (n_trials - t.number)))
+            print(f"\n{'='*80}")
+            print(f"🚀 [Trial {t.number + 1}/{n_trials}] Starting...")
+            print(f"   Estimated time per trial: {est_trial_time}")
+            print(f"   Estimated remaining time: {est_remaining}")
+            print(f"{'='*80}\n")
+        else:
+            print(f"\n{'='*80}")
+            print(f"🚀 [Trial {t.number + 1}/{n_trials}] Starting (first trial, no ETA yet)...")
+            print(f"{'='*80}\n")
+
+        result = objective(t, model_name, planned_trials=n_trials, train_limit=train_limit, seed=seed)
+
+        trial_elapsed = time.time() - trial_start
+        trial_times.append(trial_elapsed)
+
+        # Print trial summary
+        elapsed_str = str(timedelta(seconds=int(trial_elapsed)))
+
+        # Get best score and attrs safely
+        try:
+            best_score = study.best_value
+            best_attrs = study.best_trial.user_attrs
+        except (ValueError, AttributeError):
+            # First trial or no completed trials yet
+            best_score = result
+            best_attrs = t.user_attrs
+
+        print(f"\n{'='*80}")
+        print(f"✅ [Trial {t.number + 1}/{n_trials}] Completed in {elapsed_str}")
+        print(f"   Score: {result:.4f}")
+        print(f"   Metrics: LAMBADA@1={t.user_attrs.get('lbd_top1', 0):.4f} | "
+              f"Real@1={t.user_attrs.get('real1', 0):.4f} | "
+              f"Real@5={t.user_attrs.get('real5', 0):.4f}")
+        print(f"   Best so far: {best_score:.4f} "
+              f"(LAMBADA@1={best_attrs.get('lbd_top1', 0):.4f}, "
+              f"Real@5={best_attrs.get('real5', 0):.4f})")
+
+        # Overall progress
+        completed = t.number + 1
+        progress_pct = (completed / n_trials) * 100
+        avg_time_per_trial = sum(trial_times) / len(trial_times)
+        remaining_trials = n_trials - completed
+        est_remaining = timedelta(seconds=int(avg_time_per_trial * remaining_trials))
+
+        print(f"   Overall progress: {completed}/{n_trials} trials ({progress_pct:.1f}%) | "
+              f"Estimated remaining: {est_remaining}")
+        print(f"{'='*80}\n")
+
+        return result
 
     study.optimize(_obj, n_trials=n_trials, show_progress_bar=False)
 
+    total_elapsed = time.time() - study_start_time
+    total_elapsed_str = str(timedelta(seconds=int(total_elapsed)))
+
+    print(f"\n{'='*80}")
+    print(f"🎉 Study completed in {total_elapsed_str}")
+    print(f"{'='*80}")
     print("=== Best Trial ===")
     bt = study.best_trial
-    print("score:", bt.value, "params:", bt.params, "attrs:", bt.user_attrs)
+    print(f"Score: {bt.value:.4f}")
+    print(f"Params: {bt.params}")
+    print(f"Metrics: LAMBADA@1={bt.user_attrs.get('lbd_top1', 0):.4f} | "
+          f"Real@1={bt.user_attrs.get('real1', 0):.4f} | "
+          f"Real@5={bt.user_attrs.get('real5', 0):.4f}")
+    print(f"{'='*80}\n")
+
+    # Restore stdout and close log file
+    sys.stdout = tee.terminal
+    tee.close()
+    print(f"✅ Log saved to: {log_file}")
+
     return study
 
 
