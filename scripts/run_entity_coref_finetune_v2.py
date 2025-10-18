@@ -83,22 +83,6 @@ def detect_seq_len_from_checkpoint(checkpoint_path: str) -> Optional[int]:
 
 
 # ============================================================================
-# 체크포인트 탐색
-# ============================================================================
-
-
-def find_last_checkpoint(output_dir: Path) -> Optional[str]:
-    """output_dir에서 가장 최근 checkpoint-* 디렉토리 찾기"""
-    if not output_dir.exists():
-        return None
-    checkpoints = [d for d in output_dir.iterdir() if d.is_dir() and d.name.startswith("checkpoint-")]
-    if not checkpoints:
-        return None
-    checkpoints.sort(key=lambda x: int(x.name.split("-")[1]))
-    return str(checkpoints[-1])
-
-
-# ============================================================================
 # 평가 함수들은 coref_automl.tune에서 import
 # ============================================================================
 
@@ -177,59 +161,32 @@ class DetailedProgressCallback(TrainerCallback):
 
         eval_start = time.time()
 
+        # Fill-mask pipeline 생성
+        device = 0 if torch.cuda.is_available() else -1
+        fill = pipeline("fill-mask", model=self.model, tokenizer=self.tokenizer, device=device)
         mask_token = self.tokenizer.mask_token or "[MASK]"
-        print("\n📖 [1/3] LAMBADA 평가 (100 샘플)...")
-        lambada_eval = build_lambada_eval(limit=100, seed=42)
 
+        # LAMBADA 평가 (간단히 100개만)
+        print("\n📖 [1/3] LAMBADA 평가 (100 샘플)...")
+        lbd_eval = build_lambada_eval(limit=100, seed=42)
+        lbd_t1 = eval_lambada(fill, lbd_eval, mask_token=mask_token, k=1, batch_size=64, seq_len=self.seq_len)
+        print(f"   ✓ LAMBADA@1 = {lbd_t1:.4f} ({lbd_t1*100:.2f}%)")
+
+        # Real Coref 평가 (200개 샘플)
         print("\n🔗 [2/3] Real Coref 세트 구축 (200 샘플)...")
         coref_limit = 200
-        coref_eval = build_real_coref_eval_set(limit=coref_limit, seed=999, max_seq_len=self.seq_len)
-        print(f"   ✓ {len(coref_eval)} 샘플 준비 완료")
+        eval_coref = build_real_coref_eval_set(limit=coref_limit, seed=999, max_seq_len=self.seq_len)
+        print(f"   ✓ {len(eval_coref)} 샘플 준비 완료")
 
-        original_device = next(self.model.parameters()).device
-        attempts = []
-        if torch.cuda.is_available():
-            gpu_index = original_device.index if original_device.index is not None else 0
-            for bs in (32, 16, 8, 4):
-                attempts.append({"device": gpu_index, "batch_size": bs, "label": f"GPU(batch={bs})"})
-        attempts.append({"device": -1, "batch_size": 8, "label": "CPU"})
+        # Real@1
+        print("\n🔗 [3a/3] Real@1 계산...")
+        real1 = eval_real_coref_top1(fill, eval_coref, mask_token=mask_token, batch_size=64, seq_len=self.seq_len)
+        print(f"   ✓ Real@1 = {real1:.4f} ({real1*100:.2f}%)")
 
-        metrics = None
-        last_error = None
-
-        for attempt in attempts:
-            device = attempt["device"]
-            batch_size = attempt["batch_size"]
-            label = attempt["label"]
-            try:
-                metrics = self._run_eval_with_config(
-                    lambada_eval,
-                    coref_eval,
-                    mask_token,
-                    device=device,
-                    batch_size=batch_size,
-                    original_device=original_device,
-                )
-                if label == "CPU" and last_error is not None:
-                    print(f"   ℹ️  GPU OOM 발생으로 평가를 CPU로 폴백했습니다 (배치 {batch_size}).")
-                break
-            except RuntimeError as e:
-                if "out of memory" not in str(e).lower():
-                    raise
-                last_error = e
-                print(f"   ⚠️  {label} 평가 중 메모리 부족 발생 (배치 {batch_size}). 배치 축소 또는 CPU 폴백 시도합니다.")
-                if torch.cuda.is_available():
-                    torch.cuda.empty_cache()
-        else:
-            if last_error:
-                raise last_error
-            return
-
-        lbd_t1 = metrics["lambada_top1"]
-        real1 = metrics["real1"]
-        real5 = metrics["real5"]
-        eval_batch = metrics["batch_size"]
-        eval_device = metrics["device_label"]
+        # Real@5
+        print("\n🔗 [3b/3] Real@5 계산...")
+        real5 = eval_real_coref_top5(fill, eval_coref, mask_token=mask_token, batch_size=64, seq_len=self.seq_len)
+        print(f"   ✓ Real@5 = {real5:.4f} ({real5*100:.2f}%)")
 
         eval_elapsed = time.time() - eval_start
 
@@ -239,9 +196,7 @@ class DetailedProgressCallback(TrainerCallback):
             'lambada_top1': lbd_t1,
             'real1': real1,
             'real5': real5,
-            'time': eval_elapsed,
-            'device': eval_device,
-            'eval_batch_size': eval_batch,
+            'time': eval_elapsed
         }
         self.eval_history.append(eval_result)
 
@@ -252,7 +207,6 @@ class DetailedProgressCallback(TrainerCallback):
         print(f"   LAMBADA@1: {lbd_t1*100:.2f}%")
         print(f"   Real@1:    {real1*100:.2f}%")
         print(f"   Real@5:    {real5*100:.2f}%")
-        print(f"   평가 디바이스: {eval_device} (배치 {eval_batch})")
 
         # 이전 평가와 비교
         if len(self.eval_history) > 1:
@@ -272,74 +226,11 @@ class DetailedProgressCallback(TrainerCallback):
         print(f"💾 중간 평가 결과 저장: {eval_log_path}\n")
 
         # GPU 메모리 정리
+        del fill
         import gc
         gc.collect()
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
-
-    def _run_eval_with_config(self, lambada_eval, coref_eval, mask_token, device: int, batch_size: int, original_device):
-        target_device = original_device
-        if device < 0:
-            target_device = torch.device("cpu")
-        else:
-            target_device = torch.device(f"cuda:{device}") if torch.cuda.is_available() else torch.device("cpu")
-
-        moved = False
-        if target_device != original_device:
-            self.model.to(target_device)
-            moved = True
-
-        fill = pipeline(
-            "fill-mask",
-            model=self.model,
-            tokenizer=self.tokenizer,
-            device=device,
-        )
-        try:
-            lbd_t1 = eval_lambada(
-                fill,
-                lambada_eval,
-                mask_token=mask_token,
-                k=1,
-                batch_size=batch_size,
-                seq_len=self.seq_len,
-            )
-            print(f"   ✓ LAMBADA@1 = {lbd_t1:.4f} ({lbd_t1*100:.2f}%)")
-
-            print("\n🔗 [3a/3] Real@1 계산...")
-            real1 = eval_real_coref_top1(
-                fill,
-                coref_eval,
-                mask_token=mask_token,
-                batch_size=batch_size,
-                seq_len=self.seq_len,
-            )
-            print(f"   ✓ Real@1 = {real1:.4f} ({real1*100:.2f}%)")
-
-            print("\n🔗 [3b/3] Real@5 계산...")
-            real5 = eval_real_coref_top5(
-                fill,
-                coref_eval,
-                mask_token=mask_token,
-                batch_size=batch_size,
-                seq_len=self.seq_len,
-            )
-            print(f"   ✓ Real@5 = {real5:.4f} ({real5*100:.2f}%)")
-        finally:
-            del fill
-            if moved:
-                self.model.to(original_device)
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
-
-        device_label = "GPU" if device >= 0 else "CPU"
-        return {
-            "lambada_top1": lbd_t1,
-            "real1": real1,
-            "real5": real5,
-            "device_label": device_label,
-            "batch_size": batch_size,
-        }
 
     def on_log(self, args, state: TrainerState, control: TrainerControl, logs=None, **kwargs):
         if logs and 'eval_loss' in logs:
@@ -366,10 +257,10 @@ def main():
                         help="Gradient accumulation steps (기본: 2)")
     parser.add_argument("--lr", type=float, default=2e-5,
                         help="학습률 (기본: 2e-5)")
-    parser.add_argument("--warmup-ratio", type=float, default=0.1,
-                        help="Warmup 비율 (기본: 0.1)")
-    parser.add_argument("--eval-steps", type=int, default=200,
-                        help="평가 간격 (기본: 200)")
+    parser.add_argument("--warmup-ratio", type=float, default=0.05,
+                        help="Warmup 비율 (기본: 0.05)")
+    parser.add_argument("--eval-steps", type=int, default=100,
+                        help="평가 간격 (기본: 100)")
     parser.add_argument("--output-dir", default="./runs/entity_coref_finetune",
                         help="출력 디렉토리")
     parser.add_argument("--run-name", default=None,
@@ -450,10 +341,6 @@ def main():
     split = dataset.train_test_split(test_size=0.1, seed=42)
     train_dataset = split['train']
     eval_dataset = split['test']
-    max_eval_samples = 30000
-    if len(eval_dataset) > max_eval_samples:
-        print(f"   평가 샘플 상한 적용: {max_eval_samples:,}개 (원본 {len(eval_dataset):,}개)")
-        eval_dataset = eval_dataset.select(range(max_eval_samples))
 
     dataset_elapsed = time.time() - dataset_start
     print(f"✅ 데이터셋 로드 완료 ({dataset_elapsed:.1f}초)")
@@ -478,10 +365,6 @@ def main():
     total_steps = (len(train_dataset) // (args.batch_size * args.gradient_accumulation)) * args.epochs
     num_evals = total_steps // args.eval_steps
 
-    eval_batch_size = max(1, min(args.batch_size, 4))
-    if eval_batch_size != args.batch_size:
-        print(f"   평가 배치 축소: {eval_batch_size} (학습 배치 {args.batch_size})")
-
     print(f"\n📊 훈련 설정:")
     print(f"   총 스텝: {total_steps}")
     print(f"   평가 간격: {args.eval_steps} 스텝")
@@ -492,7 +375,7 @@ def main():
         output_dir=str(output_dir),
         num_train_epochs=args.epochs,
         per_device_train_batch_size=args.batch_size,
-        per_device_eval_batch_size=eval_batch_size,
+        per_device_eval_batch_size=args.batch_size,
         gradient_accumulation_steps=args.gradient_accumulation,
         learning_rate=args.lr,
         weight_decay=0.01,
@@ -519,29 +402,13 @@ def main():
         callbacks=[DetailedProgressCallback(model, tokenizer, args.seq_len, output_dir)],
     )
 
-    resume_checkpoint = find_last_checkpoint(output_dir)
-    if resume_checkpoint:
-        try:
-            resume_step = int(Path(resume_checkpoint).name.split("-")[1])
-        except Exception:
-            resume_step = None
-        print("\n" + "-" * 80)
-        print(f"✅ 이전 체크포인트 감지: {resume_checkpoint}")
-        if resume_step is not None:
-            print(f"   → Step {resume_step}부터 이어서 학습합니다.")
-        print("-" * 80 + "\n")
-    else:
-        print("\n" + "-" * 80)
-        print("ℹ️  이전 체크포인트 없음. 처음부터 학습을 시작합니다.")
-        print("-" * 80 + "\n")
-
     # 6. 훈련
     print("\n" + "=" * 80)
     print("🚀 Fine-tuning 시작!")
     print("=" * 80)
 
     train_start = time.time()
-    trainer.train(resume_from_checkpoint=resume_checkpoint)
+    trainer.train()
     train_elapsed = time.time() - train_start
 
     print("\n" + "=" * 80)
