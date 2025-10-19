@@ -30,10 +30,10 @@ sys.path.insert(0, str(project_root))
 
 from coref_automl.tune import (
     build_eval_from_lambada,
-    build_coref_eval_set,
+    build_real_coref_eval_set,
     eval_lambada_topk,
-    eval_coref_f1,
-    eval_coref_recall_topk,
+    eval_real_coref_top1,
+    eval_real_coref_top5,
 )
 
 
@@ -163,7 +163,7 @@ def evaluate_checkpoint(
     print("   Using streaming Wikipedia (seed=999, different from training) + KLUE validation")
     print("   This may take a few minutes...")
     coref_build_start = time.time()
-    eval_coref = build_coref_eval_set(
+    eval_coref = build_real_coref_eval_set(
         limit=coref_limit,
         seed=999,  # 훈련 seed와 다름 (123 → 999)
         max_seq_len=seq_len
@@ -172,16 +172,15 @@ def evaluate_checkpoint(
     print(f"   ✓ Coref set built: {len(eval_coref)} samples ({coref_build_elapsed:.1f}s)")
     results["coref_samples"] = len(eval_coref)
 
-    # Coref F1
+    # Coref Top1
     print(f"\n🔗 [3/3] Evaluating coref metrics...")
-    print(f"   Computing Coref F1 on {len(eval_coref)} samples...")
-    print(f"   (This involves predicting top-5 nouns for each masked pronoun)")
+    print(f"   Computing Coref Top1 on {len(eval_coref)} samples...")
+    print(f"   (This involves predicting top-1 for each masked entity)")
     coref_f1_start = time.time()
-    c_f1 = eval_coref_f1(
+    c_f1 = eval_real_coref_top1(
         fill,
         eval_coref,
         mask_token=mask_token,
-        k=5,
         batch_size=64,
         seq_len=seq_len,
     )
@@ -194,11 +193,10 @@ def evaluate_checkpoint(
     # Coref@5
     print(f"   Computing Coref@5 on {len(eval_coref)} samples...")
     coref_t5_start = time.time()
-    c_t5 = eval_coref_recall_topk(
+    c_t5 = eval_real_coref_top5(
         fill,
         eval_coref,
         mask_token=mask_token,
-        k=5,
         batch_size=64,
         seq_len=seq_len,
     )
