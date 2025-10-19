@@ -1,0 +1,207 @@
+{
+  "evaluated_at": "2025-10-19T05:19:45.780697",
+  "total_checkpoints": 9,
+  "total_time_minutes": 187.13870363235475,
+  "lambada_limit": 1000,
+  "coref_limit": 2000,
+  "results": [
+    {
+      "checkpoint": "runs/simple_1536/checkpoint-1037",
+      "seq_len": 1536,
+      "evaluated_at": "2025-10-19T02:12:38.055277",
+      "lambada_top1": 0.366,
+      "lambada_time": 103.46853423118591,
+      "coref_samples": 3000,
+      "coref_f1": 0.7063333333333334,
+      "coref_f1_time": 515.5733013153076,
+      "coref_top5": 0.8723333333333333,
+      "coref_top5_time": 512.9754109382629,
+      "total_time": 1242.7036626338959,
+      "score": 0.6540333333333334,
+      "checkpoint_info": {
+        "path": "runs/simple_1536/checkpoint-1037",
+        "name": "checkpoint-1037",
+        "seq_len": 1536,
+        "model_type": "deberta-v2",
+        "global_step": 1037,
+        "epoch": 0.4998267837508096
+      }
+    },
+    {
+      "checkpoint": "runs/simple_1536/checkpoint-2074",
+      "seq_len": 1536,
+      "evaluated_at": "2025-10-19T02:33:21.306263",
+      "lambada_top1": 0.352,
+      "lambada_time": 101.25311374664307,
+      "coref_samples": 3000,
+      "coref_f1": 0.7243333333333334,
+      "coref_f1_time": 513.8219051361084,
+      "coref_top5": 0.878,
+      "coref_top5_time": 514.5522015094757,
+      "total_time": 1236.7362654209137,
+      "score": 0.6587333333333333,
+      "checkpoint_info": {
+        "path": "runs/simple_1536/checkpoint-2074",
+        "name": "checkpoint-2074",
+        "seq_len": 1536,
+        "model_type": "deberta-v2",
+        "global_step": 2074,
+        "epoch": 0.9996535675016192
+      }
+    },
+    {
+      "checkpoint": "runs/simple_1536/checkpoint-3111",
+      "seq_len": 1536,
+      "evaluated_at": "2025-10-19T02:53:58.168903",
+      "lambada_top1": 0.336,
+      "lambada_time": 101.56584882736206,
+      "coref_samples": 3000,
+      "coref_f1": 0.7443333333333333,
+      "coref_f1_time": 512.8116664886475,
+      "coref_top5": 0.8833333333333333,
+      "coref_top5_time": 513.1429333686829,
+      "total_time": 1234.146487236023,
+      "score": 0.6635333333333333,
+      "checkpoint_info": {
+        "path": "runs/simple_1536/checkpoint-3111",
+        "name": "checkpoint-3111",
+        "seq_len": 1536,
+        "model_type": "deberta-v2",
+        "global_step": 3111,
+        "epoch": 1.4993447907095843
+      }
+    },
+    {
+      "checkpoint": "runs/simple_1536/checkpoint-4148",
+      "seq_len": 1536,
+      "evaluated_at": "2025-10-19T03:14:32.540838",
+      "lambada_top1": 0.354,
+      "lambada_time": 103.17410492897034,
+      "coref_samples": 3000,
+      "coref_f1": 0.7466666666666667,
+      "coref_f1_time": 519.6786246299744,
+      "coref_top5": 0.8896666666666667,
+      "coref_top5_time": 516.9971127510071,
+      "total_time": 1248.7148888111115,
+      "score": 0.6717666666666667,
+      "checkpoint_info": {
+        "path": "runs/simple_1536/checkpoint-4148",
+        "name": "checkpoint-4148",
+        "seq_len": 1536,
+        "model_type": "deberta-v2",
+        "global_step": 4148,
+        "epoch": 1.9991715744603937
+      }
+    },
+    {
+      "checkpoint": "runs/simple_1536/checkpoint-5185",
+      "seq_len": 1536,
+      "evaluated_at": "2025-10-19T03:35:21.449186",
+      "lambada_top1": 0.345,
+      "lambada_time": 103.10306215286255,
+      "coref_samples": 3000,
+      "coref_f1": 0.7513333333333333,
+      "coref_f1_time": 513.5887961387634,
+      "coref_top5": 0.8903333333333333,
+      "coref_top5_time": 524.6882791519165,
+      "total_time": 1249.926692724228,
+      "score": 0.6711333333333334,
+      "checkpoint_info": {
+        "path": "runs/simple_1536/checkpoint-5185",
+        "name": "checkpoint-5185",
+        "seq_len": 1536,
+        "model_type": "deberta-v2",
+        "global_step": 5185,
+        "epoch": 2.498862797668359
+      }
+    },
+    {
+      "checkpoint": "runs/simple_1536/checkpoint-6222",
+      "seq_len": 1536,
+      "evaluated_at": "2025-10-19T03:56:11.671601",
+      "lambada_top1": 0.346,
+      "lambada_time": 101.62333297729492,
+      "coref_samples": 3000,
+      "coref_f1": 0.749,
+      "coref_f1_time": 521.0446600914001,
+      "coref_top5": 0.892,
+      "coref_top5_time": 522.1671764850616,
+      "total_time": 1253.3767776489258,
+      "score": 0.671,
+      "checkpoint_info": {
+        "path": "runs/simple_1536/checkpoint-6222",
+        "name": "checkpoint-6222",
+        "seq_len": 1536,
+        "model_type": "deberta-v2",
+        "global_step": 6222,
+        "epoch": 2.9986895814191685
+      }
+    },
+    {
+      "checkpoint": "runs/simple_1536/checkpoint-7259",
+      "seq_len": 1536,
+      "evaluated_at": "2025-10-19T04:17:05.243826",
+      "lambada_top1": 0.351,
+      "lambada_time": 103.10377264022827,
+      "coref_samples": 3000,
+      "coref_f1": 0.7473333333333333,
+      "coref_f1_time": 527.5013296604156,
+      "coref_top5": 0.8936666666666667,
+      "coref_top5_time": 524.4354426860809,
+      "total_time": 1263.1535592079163,
+      "score": 0.6723333333333332,
+      "checkpoint_info": {
+        "path": "runs/simple_1536/checkpoint-7259",
+        "name": "checkpoint-7259",
+        "seq_len": 1536,
+        "model_type": "deberta-v2",
+        "global_step": 7259,
+        "epoch": 3.498380804627133
+      }
+    },
+    {
+      "checkpoint": "runs/simple_1536/checkpoint-8296",
+      "seq_len": 1536,
+      "evaluated_at": "2025-10-19T04:38:08.532059",
+      "lambada_top1": 0.352,
+      "lambada_time": 101.36711287498474,
+      "coref_samples": 3000,
+      "coref_f1": 0.7503333333333333,
+      "coref_f1_time": 527.9188680648804,
+      "coref_top5": 0.8916666666666667,
+      "coref_top5_time": 519.6345303058624,
+      "total_time": 1259.2321102619171,
+      "score": 0.6732333333333335,
+      "checkpoint_info": {
+        "path": "runs/simple_1536/checkpoint-8296",
+        "name": "checkpoint-8296",
+        "seq_len": 1536,
+        "model_type": "deberta-v2",
+        "global_step": 8296,
+        "epoch": 3.9982075883779427
+      }
+    },
+    {
+      "checkpoint": "runs/simple_1536/checkpoint-9333",
+      "seq_len": 1536,
+      "evaluated_at": "2025-10-19T04:59:08.042026",
+      "lambada_top1": 0.356,
+      "lambada_time": 102.76669383049011,
+      "coref_samples": 3000,
+      "coref_f1": 0.75,
+      "coref_f1_time": 510.77686953544617,
+      "coref_top5": 0.8936666666666667,
+      "coref_top5_time": 516.5045521259308,
+      "total_time": 1238.5120570659637,
+      "score": 0.6749,
+      "checkpoint_info": {
+        "path": "runs/simple_1536/checkpoint-9333",
+        "name": "checkpoint-9333",
+        "seq_len": 1536,
+        "model_type": "deberta-v2",
+        "global_step": 9333,
+        "epoch": 4.497898811585908
+      }
+    }
+  ]
+}
