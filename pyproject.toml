@@ -17,6 +17,9 @@ dependencies = [
   # torch는 CUDA 환경별로 개별 설치 권장(uv로 별도 설치 가능)
 ]
 
+[tool.setuptools]
+packages = ["coref_automl"]
+
 [tool.uv]
 # uv 프로젝트 설정이 이미 있다면 이 섹션은 생략 가능
 
