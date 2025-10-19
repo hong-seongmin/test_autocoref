@@ -32,8 +32,8 @@ def recommended_hparams(seq_len: int):
             "warmup_ratio": 0.16,
             "min_prob": 0.118,
             "max_prob": 0.36,
-            "per_device_bs": 8,
-            "grad_acc": 16,
+            "per_device_bs": 32,  # H100 80GB용 초기 배치 크기 증가 (8->32)
+            "grad_acc": 4,  # gradient accumulation 감소 (16->4)
             "weight_decay": 0.045,
         }
     return {
@@ -41,8 +41,8 @@ def recommended_hparams(seq_len: int):
         "warmup_ratio": 0.195,
         "min_prob": 0.136,
         "max_prob": 0.475,
-        "per_device_bs": 4,
-        "grad_acc": 32,
+        "per_device_bs": 16,  # 더 긴 시퀀스도 배치 크기 증가 (4->16)
+        "grad_acc": 8,  # gradient accumulation 감소 (32->8)
         "weight_decay": 0.046,
     }
 
@@ -211,29 +211,67 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(args.model)
     model = AutoModelForMaskedLM.from_pretrained(args.model)
 
-    if args.seq_len > model.config.max_position_embeddings:
-        # DebertaV2 uses relative position embeddings stored in encoder.rel_embeddings.
-        position_embed = getattr(model.deberta.embeddings, "position_embeddings", None)
-        if position_embed is not None:
-            old_num, dim = position_embed.weight.shape
-            new_embed = torch.nn.Embedding(args.seq_len, dim)
-            new_embed.weight.data[:old_num] = position_embed.weight.data.clone()
-            if args.seq_len > old_num:
-                new_embed.weight.data[old_num:] = position_embed.weight.data[-1:].repeat(args.seq_len - old_num, 1)
-            model.deberta.embeddings.position_embeddings = new_embed.to(model.device)
+    # Gradient checkpointing으로 메모리 절약 (더 큰 배치 사용 가능)
+    model.gradient_checkpointing_enable()
 
-        rel_embeddings = getattr(model.deberta.encoder, "rel_embeddings", None)
-        if rel_embeddings is None:
-            raise NotImplementedError(
-                "Deberta model does not expose rel_embeddings; manual resize not supported."
+    if args.seq_len > model.config.max_position_embeddings:
+        print(f"→ Resizing position embeddings from {model.config.max_position_embeddings} to {args.seq_len}")
+
+        # Detect model type and resize accordingly
+        if hasattr(model, 'deberta'):
+            # DeBERTa: uses relative position embeddings
+            print("   Model type: DeBERTa")
+            position_embed = getattr(model.deberta.embeddings, "position_embeddings", None)
+            if position_embed is not None:
+                old_num, dim = position_embed.weight.shape
+                new_embed = torch.nn.Embedding(args.seq_len, dim)
+                new_embed.weight.data[:old_num] = position_embed.weight.data.clone()
+                if args.seq_len > old_num:
+                    new_embed.weight.data[old_num:] = position_embed.weight.data[-1:].repeat(args.seq_len - old_num, 1)
+                model.deberta.embeddings.position_embeddings = new_embed.to(model.device)
+
+            rel_embeddings = getattr(model.deberta.encoder, "rel_embeddings", None)
+            if rel_embeddings is None:
+                raise NotImplementedError(
+                    "Deberta model does not expose rel_embeddings; manual resize not supported."
+                )
+            old_rel_num, rel_dim = rel_embeddings.weight.shape
+            new_rel = torch.nn.Embedding(args.seq_len, rel_dim)
+            new_rel.weight.data[:old_rel_num] = rel_embeddings.weight.data.clone()
+            if args.seq_len > old_rel_num:
+                new_rel.weight.data[old_rel_num:] = rel_embeddings.weight.data[-1:].repeat(args.seq_len - old_rel_num, 1)
+            model.deberta.encoder.rel_embeddings = new_rel.to(model.device)
+            model.config.max_position_embeddings = args.seq_len
+
+        elif hasattr(model, 'roberta'):
+            # RoBERTa: uses absolute position embeddings
+            print("   Model type: RoBERTa")
+            position_embed = model.roberta.embeddings.position_embeddings
+            old_num, dim = position_embed.weight.shape
+            # RoBERTa uses position_ids starting from padding_idx+1 (2)
+            # So we need seq_len + padding positions
+            new_num_positions = args.seq_len + 2  # +2 for padding (0, 1)
+            new_embed = torch.nn.Embedding(new_num_positions, dim)
+            new_embed.weight.data[:old_num] = position_embed.weight.data.clone()
+            if new_num_positions > old_num:
+                # Repeat the last position embedding for new positions
+                new_embed.weight.data[old_num:] = position_embed.weight.data[-1:].repeat(new_num_positions - old_num, 1)
+            model.roberta.embeddings.position_embeddings = new_embed.to(model.device)
+            model.config.max_position_embeddings = args.seq_len
+            # Also update the position_ids buffer size
+            model.roberta.embeddings.register_buffer(
+                "position_ids",
+                torch.arange(new_num_positions).expand((1, -1)),
+                persistent=False
             )
-        old_rel_num, rel_dim = rel_embeddings.weight.shape
-        new_rel = torch.nn.Embedding(args.seq_len, rel_dim)
-        new_rel.weight.data[:old_rel_num] = rel_embeddings.weight.data.clone()
-        if args.seq_len > old_rel_num:
-            new_rel.weight.data[old_rel_num:] = rel_embeddings.weight.data[-1:].repeat(args.seq_len - old_rel_num, 1)
-        model.deberta.encoder.rel_embeddings = new_rel.to(model.device)
-        model.config.max_position_embeddings = args.seq_len
+            print(f"   RoBERTa position embeddings: {old_num} → {new_num_positions}")
+
+        else:
+            raise NotImplementedError(
+                f"Sequence length resizing not supported for model type: {model.config.model_type}"
+            )
+
+        print(f"✓ Position embeddings resized successfully")
 
     collator = DynCollator(
         tokenizer=tokenizer,
@@ -270,6 +308,7 @@ def main():
         overwrite_output_dir=True,
         per_device_train_batch_size=per_device_bs,
         gradient_accumulation_steps=grad_acc,
+        auto_find_batch_size=True,  # GPU 메모리에 맞게 배치 크기 자동 조정
         learning_rate=lr,
         warmup_ratio=warmup_ratio,
         weight_decay=weight_decay,
